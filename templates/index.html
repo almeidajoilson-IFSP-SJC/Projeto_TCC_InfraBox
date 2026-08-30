@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Monitoramento - TCC</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="topo">
+        <div class="marca">
+            <span class="marca-cubo">◇</span>
+            <div><strong>INFRA BOX</strong><small>Projeto TCC - Joilson Almeida </small></div>
+        </div>
+        <h1>Painel de Monitoramento</h1>
+        <div class="conexao"><span class="status-online"></span><span>ONLINE</span></div>
+    </header>
+
+    <main class="conteudo">
+        <section class="supervisao">
+            <div class="painel-wrapper">
+                <div class="painel-nextion">
+                    <img src="{{ url_for('static', filename='img/painel_nextion.jpg') }}" alt="Painel visual baseado no display Nextion">
+
+                    <div class="valor temperatura"><span id="temperatura">--</span></div>
+                    <div class="valor dc"><span id="bateria">--</span> V</div>
+                    <div class="valor ac"><span id="fase1">--</span> V</div>
+
+                    <div class="bateria-gauge">
+                        <div class="bateria-corpo">
+                            <div id="nivel-bateria" class="bateria-nivel"></div>
+                        </div>
+                    </div>
+
+                    <button class="rele rele1" id="botao-rele1" type="button">
+                        <span>RELÉ 1</span>
+                        <strong id="rele1">--</strong>
+                    </button>
+
+                    <button class="rele rele2" id="botao-rele2" type="button">
+                        <span>RELÉ 2</span>
+                        <strong id="rele2">--</strong>
+                    </button>
+                    
+                    <div id="alarme-painel" class="alarme-painel oculto">
+                 
+                        <strong id="alarme-texto">ALARME</strong>
+                        <span class="triangulo">!</span>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="status-equipamentos">
+                <h2>Status dos Equipamentos</h2>
+                <div class="status-item"><span>Porta</span><span id="porta" class="indicador"></span></div>
+                <div class="status-item"><span>Retificador</span><span id="retificador" class="indicador"></span></div>
+                <div class="status-item"><span>Ar-condicionado</span><span id="ar_condicionado" class="indicador"></span></div>
+                <div class="status-item"><span>Gerador</span><span id="gerador" class="indicador"></span></div>
+                <div class="status-item"><span>Inversor</span><span id="inversor" class="indicador"></span></div>
+                <div class="status-item"><span>Incêndio</span><span id="incendio" class="indicador"></span></div>
+            </aside>
+        </section>
+
+        <section class="historico">
+            <h2>Gráficos / Histórico</h2>
+
+            <div class="graficos-grid">
+
+                <div class="grafico-card">
+                    <h3>Temperatura</h3>
+                    <div class="canvas-container">
+                        <canvas id="graficoTemperatura"></canvas>
+                    </div>
+                </div>
+
+                <div class="grafico-card">
+                    <h3>Tensão DC</h3>
+                    <div class="canvas-container">
+                        <canvas id="graficoDC"></canvas>
+                    </div>
+                </div>
+
+                <div class="grafico-card grafico-ac">
+                    <h3>Tensão AC</h3>
+                    <div class="canvas-container">
+                        <canvas id="graficoAC"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <p><strong>Instituto Federal de São Paulo, Campus São Jose dos Campos - IFSP - SJC</strong></p>
+        <p>Engenharia de Controle e Automação</p>
+        <p>Trabalho de Conclusão de Curso</p>
+        <p>Aluno: [Joilson Correia de Almeida] &nbsp; | &nbsp; Orientador: [Ivan Lucas Arantes] &nbsp; | &nbsp; 2026</p>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

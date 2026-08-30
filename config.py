@@ -1,0 +1,4 @@
+MODO_SIMULADO = True
+
+MEGA_IP = "192.168.100.50"
+MEGA_STATUS_URL = f"http://{MEGA_IP}/status"
