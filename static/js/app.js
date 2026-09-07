@@ -243,48 +243,6 @@ function adicionarHistorico(dados) {
 }
 
 
-async function comandarRele1() {
-    const elemento = document.getElementById("rele1");
-
-    const estadoAtual =
-        elemento.textContent.trim().toLowerCase();
-
-    const novoEstado =
-        estadoAtual === "on" ? 0 : 1;
-
-    try {
-        const resposta = await fetch(
-            "/api/rele1",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                cache: "no-store",
-                body: JSON.stringify({
-                    estado: novoEstado
-                })
-            }
-        );
-
-        if (!resposta.ok) {
-            throw new Error(
-                `HTTP ${resposta.status}`
-            );
-        }
-
-        console.log(
-            "Comando Relé 1 enviado:",
-            novoEstado
-        );
-
-    } catch (erro) {
-        console.error(
-            "Erro ao comandar Relé 1:",
-            erro
-        );
-    }
-}
 
 async function atualizarDados() {
 
@@ -428,11 +386,9 @@ const botaoRele2 = document.getElementById("botao-rele2");
 botaoRele1.addEventListener("click", function () {
     comandarRele(1);
 });
-/*
-botaoRele2.addEventListener("click", function () {
-    comandarRele(2);
-});
-*/
+
+
+
 async function cicloAtualizacao() {
 
     await atualizarDados();
@@ -460,8 +416,50 @@ function atualizarStatusConexao(online, ultimaAtualizacao) {
 
         atualizacao.textContent =
             `Última atualização: ${dataHora.toLocaleString("pt-BR")}`;
-    } else {
-        atualizacao.textContent =
-            "Última atualização: --";
+    }
+}
+
+
+
+async function comandarRele1() {
+    const elemento = document.getElementById("rele1");
+
+    const estadoAtual =
+        elemento.textContent.trim().toLowerCase();
+
+    const novoEstado =
+        estadoAtual === "on" ? 0 : 1;
+
+    try {
+        const resposta = await fetch(
+            "/api/rele1",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                cache: "no-store",
+                body: JSON.stringify({
+                    estado: novoEstado
+                })
+            }
+        );
+
+        if (!resposta.ok) {
+            throw new Error(
+                `HTTP ${resposta.status}`
+            );
+        }
+
+        console.log(
+            "Comando Relé 1 enviado:",
+            novoEstado
+        );
+
+    } catch (erro) {
+        console.error(
+            "Erro ao comandar Relé 1:",
+            erro
+        );
     }
 }
