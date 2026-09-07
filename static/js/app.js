@@ -243,29 +243,46 @@ function adicionarHistorico(dados) {
 }
 
 
-async function comandarRele(numero) {
-    const elemento = document.getElementById(`rele${numero}`);
-    const estadoAtual = elemento.textContent.trim().toLowerCase();
+async function comandarRele1() {
+    const elemento = document.getElementById("rele1");
 
-    const novoEstado = estadoAtual === "on" ? "off" : "on";
+    const estadoAtual =
+        elemento.textContent.trim().toLowerCase();
+
+    const novoEstado =
+        estadoAtual === "on" ? 0 : 1;
 
     try {
         const resposta = await fetch(
-            `/api/rele/${numero}/${novoEstado}`,
+            "/api/rele1",
             {
                 method: "POST",
-                cache: "no-store"
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                cache: "no-store",
+                body: JSON.stringify({
+                    estado: novoEstado
+                })
             }
         );
 
         if (!resposta.ok) {
-            throw new Error(`HTTP ${resposta.status}`);
+            throw new Error(
+                `HTTP ${resposta.status}`
+            );
         }
 
-        await atualizarDados();
+        console.log(
+            "Comando Relé 1 enviado:",
+            novoEstado
+        );
 
     } catch (erro) {
-        console.error(`Erro ao comandar Relé ${numero}:`, erro);
+        console.error(
+            "Erro ao comandar Relé 1:",
+            erro
+        );
     }
 }
 
@@ -407,11 +424,11 @@ async function atualizarDados() {
 
 const botaoRele1 = document.getElementById("botao-rele1");
 const botaoRele2 = document.getElementById("botao-rele2");
-/*
+
 botaoRele1.addEventListener("click", function () {
     comandarRele(1);
 });
-
+/*
 botaoRele2.addEventListener("click", function () {
     comandarRele(2);
 });
