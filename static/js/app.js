@@ -387,7 +387,9 @@ botaoRele1.addEventListener("click", function () {
     comandarRele1();
 });
 
-
+botaoRele2.addEventListener("click", function () {
+    comandarRele2();
+});
 
 async function cicloAtualizacao() {
 
@@ -459,6 +461,49 @@ async function comandarRele1() {
     } catch (erro) {
         console.error(
             "Erro ao comandar Relé 1:",
+            erro
+        );
+    }
+}
+
+async function comandarRele2() {
+    const elemento = document.getElementById("rele2");
+
+    const estadoAtual =
+        elemento.textContent.trim().toLowerCase();
+
+    const novoEstado =
+        estadoAtual === "on" ? 0 : 1;
+
+    try {
+        const resposta = await fetch(
+            "/api/rele2",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                cache: "no-store",
+                body: JSON.stringify({
+                    estado: novoEstado
+                })
+            }
+        );
+
+        if (!resposta.ok) {
+            throw new Error(
+                `HTTP ${resposta.status}`
+            );
+        }
+
+        console.log(
+            "Comando Relé 2 enviado:",
+            novoEstado
+        );
+
+    } catch (erro) {
+        console.error(
+            "Erro ao comandar Relé 2:",
             erro
         );
     }

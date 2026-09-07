@@ -72,6 +72,7 @@ ultimo_dado_mega = None
 ultima_atualizacao_mega = None
 
 comando_rele1 = 0
+comando_rele2 = 0
 
 
 @app.route("/")
@@ -102,6 +103,7 @@ def receber_dados_mega():
 def comando_mega():
     return jsonify({
         "rele1": comando_rele1
+        "rele2": comando_rele2
     })
 
 
@@ -121,6 +123,25 @@ def alterar_rele1():
     return jsonify({
         "ok": True,
         "rele1": comando_rele1
+    })
+
+
+@app.route("/api/rele2", methods=["POST"])
+def alterar_rele2():
+    global comando_rele2
+
+    dados = request.get_json(silent=True)
+
+    if not dados or "estado" not in dados:
+        return jsonify({
+            "erro": "Estado inválido"
+        }), 400
+
+    comando_rele2 = 1 if dados["estado"] else 0
+
+    return jsonify({
+        "ok": True,
+        "rele2": comando_rele2
     })
 
 
