@@ -102,7 +102,7 @@ def receber_dados_mega():
 @app.route("/api/mega/comando")
 def comando_mega():
     return jsonify({
-        "rele1": comando_rele1
+        "rele1": comando_rele1,
         "rele2": comando_rele2
     })
 
