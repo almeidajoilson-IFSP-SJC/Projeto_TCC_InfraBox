@@ -384,7 +384,7 @@ const botaoRele1 = document.getElementById("botao-rele1");
 const botaoRele2 = document.getElementById("botao-rele2");
 
 botaoRele1.addEventListener("click", function () {
-    comandarRele(1);
+    comandarRele1();
 });
 
 
