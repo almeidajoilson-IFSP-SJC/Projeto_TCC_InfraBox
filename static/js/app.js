@@ -1,4 +1,5 @@
 const MAX_PONTOS = 60;
+let consultaEmAndamento = false;
 
 const labelsHistorico = [];
 
@@ -8,9 +9,6 @@ const historicoDC = [];
 const historicoR = [];
 const historicoS = [];
 const historicoT = [];
-
-let estadoAtualRele1 = 0;
-let estadoAtualRele2 = 0;
 
 const configuracaoBase = {
     responsive: true,
@@ -164,30 +162,29 @@ function atualizarNivelBateria(tensao) {
 
 
 function atualizarAlarmeGeral(dados) {
-    const alarmes = [
-        ["PORTA", dados.porta],
-        ["RETIF.", dados.retificador],
-        ["AR-COND.", dados.ar_condicionado],
-        ["GERADOR", dados.gerador],
-        ["INVERSOR", dados.inversor],
-        ["INCÊNDIO", dados.incendio]
-    ];
 
-    const ativo = alarmes.find(
-        ([, estado]) => Boolean(estado)
-    );
+    const mensagens = {
+        1: "TEMP. ALTA",
+        2: "BAT. DESC.",
+        3: "FALHA AC",
+        4: "PORTA",
+        5: "RETIF.",
+        6: "AR-COND.",
+        7: "GERADOR",
+        8: "INVERSOR",
+        9: "INCÊNDIO"
+    };
 
-    const painel =
-        document.getElementById("alarme-painel");
+    const painel = document.getElementById("alarme-painel");
+    const texto = document.getElementById("alarme-texto");
 
-    if (ativo) {
-        document.getElementById(
-            "alarme-texto"
-        ).textContent = ativo[0];
+    const codigo = Number(dados.alarme);
 
+    if (codigo > 0 && mensagens[codigo]) {
+        texto.textContent = mensagens[codigo];
         painel.classList.remove("oculto");
-
     } else {
+        texto.textContent = "";
         painel.classList.add("oculto");
     }
 }
@@ -246,21 +243,20 @@ function adicionarHistorico(dados) {
 }
 
 
-async function comandarRele(numero, estadoAtual) {
+async function comandarRele(numero) {
+    const elemento = document.getElementById(`rele${numero}`);
+    const estadoAtual = elemento.textContent.trim().toLowerCase();
+
+    const novoEstado = estadoAtual === "on" ? "off" : "on";
+
     try {
-        const novoEstado = !Boolean(estadoAtual);
-
-        const resposta = await fetch(`/api/rele/${numero}`, {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                estado: novoEstado
-            })
-        });
+        const resposta = await fetch(
+            `/api/rele/${numero}/${novoEstado}`,
+            {
+                method: "POST",
+                cache: "no-store"
+            }
+        );
 
         if (!resposta.ok) {
             throw new Error(`HTTP ${resposta.status}`);
@@ -269,11 +265,18 @@ async function comandarRele(numero, estadoAtual) {
         await atualizarDados();
 
     } catch (erro) {
-        console.error("Erro ao comandar relé:", erro);
+        console.error(`Erro ao comandar Relé ${numero}:`, erro);
     }
 }
 
 async function atualizarDados() {
+
+    if (consultaEmAndamento) {
+        return;
+    }
+
+    consultaEmAndamento = true;
+  
     try {
         const resposta = await fetch(
             "/api/status",
@@ -288,15 +291,18 @@ async function atualizarDados() {
             );
         }
 
-        const dados =
-            await resposta.json();
-            let estadoAtualRele1 = 0;
-            let estadoAtualRele2 = 0;
-            
+        const dados = await resposta.json();
 
+        atualizarStatusConexao(
+            Boolean(dados.online),
+            dados.ultima_atualizacao
+        );
+
+        if (!dados.temperatura && dados.temperatura !== 0) {
+            return;
+        }
 
         adicionarHistorico(dados);
-
 
         document.getElementById(
             "temperatura"
@@ -393,25 +399,52 @@ async function atualizarDados() {
             "Erro ao obter dados:",
             erro
         );
+    } finally {
+
+        consultaEmAndamento = false;
     }
 }
 
-document
-    .getElementById("botao-rele1")
-    .addEventListener("click", () => {
-        comandarRele(1, estadoAtualRele1);
-    });
+const botaoRele1 = document.getElementById("botao-rele1");
+const botaoRele2 = document.getElementById("botao-rele2");
+/*
+botaoRele1.addEventListener("click", function () {
+    comandarRele(1);
+});
 
+botaoRele2.addEventListener("click", function () {
+    comandarRele(2);
+});
+*/
+async function cicloAtualizacao() {
 
-document
-    .getElementById("botao-rele2")
-    .addEventListener("click", () => {
-        comandarRele(2, estadoAtualRele2);
-    });
+    await atualizarDados();
 
-atualizarDados();
+    setTimeout(
+        cicloAtualizacao,
+        1000
+    );
+}
 
-setInterval(
-    atualizarDados,
-    1000
-);
+cicloAtualizacao();
+
+function atualizarStatusConexao(online, ultimaAtualizacao) {
+    const status = document.getElementById("status-conexao");
+    const texto = document.getElementById("status-texto");
+    const atualizacao = document.getElementById("ultima-atualizacao");
+
+    status.classList.toggle("online", online);
+    status.classList.toggle("offline", !online);
+
+    texto.textContent = online ? "ONLINE" : "OFFLINE";
+
+    if (ultimaAtualizacao) {
+        const dataHora = new Date(ultimaAtualizacao);
+
+        atualizacao.textContent =
+            `Última atualização: ${dataHora.toLocaleString("pt-BR")}`;
+    } else {
+        atualizacao.textContent =
+            "Última atualização: --";
+    }
+}

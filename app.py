@@ -1,29 +1,11 @@
+from datetime import datetime, timezone
+
 from flask import Flask, jsonify, render_template, request
-from config import MODO_SIMULADO
 
 app = Flask(__name__)
 
-
-dados_simulados = {
-    "temperatura": 24.8,
-    "bateria": 12.0,
-    "fase1": 218.0,
-    "fase2": 230.0,
-    "fase3": 110.0,
-    "porta": 0,
-    "retificador": 0,
-    "ar_condicionado": 1,
-    "gerador": 0,
-    "inversor": 0,
-    "incendio": 0,
-    "rele1": 0,
-    "rele2": 1
-}
-
-
-def obter_dados():
-    if MODO_SIMULADO:
-        return dados_simulados
+ultimo_dado_mega = None
+ultima_atualizacao_mega = None
 
 
 @app.route("/")
@@ -31,24 +13,48 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/api/status")
-def status():
-    return jsonify(obter_dados())
+@app.route("/api/mega/update", methods=["POST"])
+def receber_dados_mega():
+    global ultimo_dado_mega, ultima_atualizacao_mega
 
+    dados = request.get_json(silent=True)
 
-@app.route("/api/rele/<int:numero>", methods=["POST"])
-def controlar_rele(numero):
-    if numero not in [1, 2]:
-        return jsonify({"erro": "Relé inválido"}), 400
+    if not dados:
+        return jsonify({
+            "erro": "Dados inválidos"
+        }), 400
 
-    chave = f"rele{numero}"
-
-    dados_simulados[chave] = 0 if dados_simulados[chave] else 1
+    ultimo_dado_mega = dados
+    ultima_atualizacao_mega = datetime.now(timezone.utc)
 
     return jsonify({
-        "rele": numero,
-        "estado": dados_simulados[chave]
+        "ok": True
     })
+
+
+@app.route("/api/status")
+def status():
+    if ultimo_dado_mega is None:
+        return jsonify({
+            "online": False,
+            "erro": "Nenhum dado recebido do Mega"
+        })
+
+    agora = datetime.now(timezone.utc)
+
+    tempo_sem_atualizacao = (
+        agora - ultima_atualizacao_mega
+    ).total_seconds()
+
+    dados = ultimo_dado_mega.copy()
+
+    dados["online"] = tempo_sem_atualizacao <= 10
+
+    dados["ultima_atualizacao"] = (
+        ultima_atualizacao_mega.isoformat()
+    )
+
+    return jsonify(dados)
 
 
 if __name__ == "__main__":
