@@ -117,3 +117,53 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f5;color:va
 .status-conexao.offline #status-texto {
     color: #ff2b2b;
 }
+
+/* Ajustes do painel para celular */
+@media (max-width: 560px) {
+
+    /* Relés */
+    .rele {
+        top: 54%;
+        width: 11.5%;
+        min-height: 13%;
+        border-radius: 4px;
+    }
+
+    .rele1 {
+        left: 16.5%;
+    }
+
+    .rele2 {
+        left: 29%;
+    }
+
+    .rele span {
+        font-size: 10px;
+        line-height: 1.05;
+    }
+
+    .rele strong {
+        margin-top: 2px;
+        font-size: 13px;
+        line-height: 1;
+    }
+
+    /* Alarme */
+    .alarme-painel {
+        right: 25%;
+        bottom: 9%;
+        gap: 10px;
+    }
+
+    .alarme-painel strong {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .triangulo {
+        width: 40px;
+        height: 40px;
+        font-size: 26px;
+        padding-top: 7px;
+    }
+}
