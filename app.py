@@ -1,9 +1,34 @@
-
 from datetime import datetime, timezone
+from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
+from google import genai
 
 app = Flask(__name__)
+
+client = genai.Client()
+
+PASTA_BASE = Path(__file__).parent / "base_conhecimento"
+
+
+def carregar_base_conhecimento():
+    conteudo = []
+
+    for arquivo in sorted(PASTA_BASE.glob("*.md")):
+        texto = arquivo.read_text(encoding="utf-8")
+
+        conteudo.append(
+            f"""
+===== DOCUMENTO: {arquivo.name} =====
+
+{texto}
+"""
+        )
+
+    return "\n".join(conteudo)
+
+
+base_conhecimento = carregar_base_conhecimento()
 
 ultimo_dado_mega = None
 ultima_atualizacao_mega = None
@@ -114,6 +139,45 @@ def status():
 
     return jsonify(dados)
 
+
+@app.route("/api/suporte", methods=["POST"])
+def suporte():
+    dados = request.get_json(silent=True)
+
+    if not dados or not dados.get("pergunta", "").strip():
+        return jsonify({
+            "erro": "Pergunta inválida"
+        }), 400
+
+    pergunta = dados["pergunta"].strip()
+
+    prompt = f"""
+# Documentação técnica disponível
+
+{base_conhecimento}
+
+# Pergunta do usuário
+
+{pergunta}
+"""
+
+    try:
+        resposta = client.interactions.create(
+            model="gemini-3.6-flash",
+            input=prompt
+        )
+
+        return jsonify({
+            "ok": True,
+            "resposta": resposta.output_text
+        })
+
+    except Exception as erro:
+        print("Erro no suporte Gemini:", erro)
+
+        return jsonify({
+            "erro": "Não foi possível consultar o assistente técnico."
+        }), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

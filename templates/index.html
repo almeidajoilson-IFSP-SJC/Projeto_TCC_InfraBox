@@ -107,6 +107,85 @@
         <p>Aluno: [Joilson Correia de Almeida] &nbsp; | &nbsp; Orientador: [Ivan Lucas Arantes] &nbsp; | &nbsp; 2026</p>
     </footer>
     
+    <!-- Assistente Técnico InfraBox -->
+    <div id="suporte-chat" class="suporte-chat">
+
+        <div id="suporte-janela" class="suporte-janela oculto">
+
+            <div class="suporte-topo">
+                <div class="suporte-topo-titulo">
+                    <span class="suporte-logo">◇</span>
+
+                    <div>
+                        <strong>Assistente Técnico</strong>
+                        <small>InfraBox</small>
+                    </div>
+                </div>
+
+                <button
+                    id="suporte-fechar"
+                    class="suporte-fechar"
+                    type="button"
+                    aria-label="Fechar assistente"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div id="suporte-mensagens" class="suporte-mensagens">
+
+                <div class="suporte-msg assistente">
+                    <div class="suporte-balao">
+                        Olá! Sou o assistente técnico do InfraBox.
+                        Posso ajudar com dúvidas sobre instalação,
+                        configuração, operação e manutenção.
+                        <br><br>
+                        Como posso ajudar?
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="suporte-entrada">
+                <input
+                    id="suporte-pergunta"
+                    type="text"
+                    placeholder="Digite sua pergunta..."
+                    autocomplete="off"
+                >
+
+                <button
+                    id="suporte-enviar"
+                    type="button"
+                    aria-label="Enviar pergunta"
+                >
+                    ➤
+                </button>
+            </div>
+
+            <div class="suporte-rodape">
+                Assistente baseado na documentação técnica do InfraBox TCC
+            </div>
+        </div>
+
+        <button
+            id="suporte-abrir"
+            class="suporte-abrir"
+            type="button"
+            aria-label="Abrir Assistente Técnico InfraBox"
+        >
+            <span class="suporte-abrir-logo">◇</span>
+
+            <span class="suporte-abrir-texto">
+                <strong>Assistente Técnico</strong>
+                <small>InfraBox</small>
+            </span>
+
+            <span class="suporte-abrir-chat">💬</span>
+        </button>
+
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>

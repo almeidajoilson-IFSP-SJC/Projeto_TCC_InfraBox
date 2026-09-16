@@ -1,4 +1,4 @@
-const MAX_PONTOS = 60;
+const MAX_PONTOS = 300;
 let consultaEmAndamento = false;
 
 const labelsHistorico = [];
@@ -506,5 +506,160 @@ async function comandarRele2() {
             "Erro ao comandar Relé 2:",
             erro
         );
+    }
+}
+
+// =========================================================
+// ASSISTENTE TÉCNICO INFRABOX
+// =========================================================
+
+const suporteAbrir =
+    document.getElementById("suporte-abrir");
+
+const suporteFechar =
+    document.getElementById("suporte-fechar");
+
+const suporteJanela =
+    document.getElementById("suporte-janela");
+
+const suportePergunta =
+    document.getElementById("suporte-pergunta");
+
+const suporteEnviar =
+    document.getElementById("suporte-enviar");
+
+const suporteMensagens =
+    document.getElementById("suporte-mensagens");
+
+
+suporteAbrir.addEventListener("click", function () {
+    suporteJanela.classList.remove("oculto");
+
+    setTimeout(function () {
+        suportePergunta.focus();
+    }, 100);
+});
+
+
+suporteFechar.addEventListener("click", function () {
+    suporteJanela.classList.add("oculto");
+});
+
+
+suporteEnviar.addEventListener("click", function () {
+    enviarPerguntaSuporte();
+});
+
+
+suportePergunta.addEventListener("keydown", function (evento) {
+    if (evento.key === "Enter") {
+        evento.preventDefault();
+        enviarPerguntaSuporte();
+    }
+});
+
+
+function adicionarMensagemSuporte(texto, tipo) {
+
+    const mensagem =
+        document.createElement("div");
+
+    mensagem.className =
+        `suporte-msg ${tipo}`;
+
+    const balao =
+        document.createElement("div");
+
+    balao.className =
+        "suporte-balao";
+
+    balao.textContent = texto;
+
+    mensagem.appendChild(balao);
+
+    suporteMensagens.appendChild(mensagem);
+
+    suporteMensagens.scrollTop =
+        suporteMensagens.scrollHeight;
+
+    return mensagem;
+}
+
+
+async function enviarPerguntaSuporte() {
+
+    const pergunta =
+        suportePergunta.value.trim();
+
+    if (!pergunta) {
+        return;
+    }
+
+    adicionarMensagemSuporte(
+        pergunta,
+        "usuario"
+    );
+
+    suportePergunta.value = "";
+    suporteEnviar.disabled = true;
+
+    const mensagemAguardando =
+        adicionarMensagemSuporte(
+            "Consultando documentação...",
+            "assistente"
+        );
+
+    try {
+
+        const resposta = await fetch(
+            "/api/suporte",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    pergunta: pergunta
+                })
+            }
+        );
+
+        const dados =
+            await resposta.json();
+
+        mensagemAguardando.remove();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.erro ||
+                `HTTP ${resposta.status}`
+            );
+        }
+
+        adicionarMensagemSuporte(
+            dados.resposta,
+            "assistente"
+        );
+
+    } catch (erro) {
+
+        mensagemAguardando.remove();
+
+        console.error(
+            "Erro no Assistente Técnico:",
+            erro
+        );
+
+        adicionarMensagemSuporte(
+            "Não foi possível consultar o assistente técnico neste momento.",
+            "assistente"
+        );
+
+    } finally {
+
+        suporteEnviar.disabled = false;
+        suportePergunta.focus();
     }
 }

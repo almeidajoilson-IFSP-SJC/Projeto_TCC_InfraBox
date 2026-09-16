@@ -167,3 +167,336 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f5;color:va
         padding-top: 7px;
     }
 }
+
+/* =========================================================
+   ASSISTENTE TÉCNICO INFRABOX
+   ========================================================= */
+
+.suporte-chat {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 9999;
+    font-family: Arial, sans-serif;
+}
+
+.suporte-abrir {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 245px;
+    padding: 12px 16px;
+
+    border: 1px solid #26b7ff;
+    border-radius: 18px;
+
+    background: linear-gradient(135deg, #0876db, #169bff);
+    color: #ffffff;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 14px rgba(0, 174, 255, 0.35),
+        0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.suporte-abrir:hover {
+    filter: brightness(1.08);
+}
+
+.suporte-abrir-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+
+    font-size: 24px;
+}
+
+.suporte-abrir-texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    flex: 1;
+}
+
+.suporte-abrir-texto strong {
+    font-size: 15px;
+}
+
+.suporte-abrir-texto small {
+    margin-top: 2px;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.suporte-abrir-chat {
+    font-size: 24px;
+}
+
+.suporte-janela {
+    position: absolute;
+    right: 0;
+    bottom: 76px;
+
+    width: 380px;
+    height: 520px;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #f4f7fa;
+
+    border: 1px solid #1da8ff;
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 0 20px rgba(0, 174, 255, 0.25),
+        0 12px 35px rgba(0, 0, 0, 0.45);
+}
+
+.suporte-janela.oculto {
+    display: none;
+}
+
+.suporte-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 58px;
+    padding: 0 15px;
+
+    color: #ffffff;
+    background: linear-gradient(90deg, #0876db, #169bff);
+}
+
+.suporte-topo-titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.suporte-topo-titulo > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.suporte-topo-titulo strong {
+    font-size: 14px;
+}
+
+.suporte-topo-titulo small {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
+.suporte-logo {
+    font-size: 25px;
+}
+
+.suporte-fechar {
+    border: none;
+    background: transparent;
+    color: #ffffff;
+
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.suporte-mensagens {
+    flex: 1;
+
+    padding: 16px;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+}
+
+.suporte-msg {
+    display: flex;
+    margin-bottom: 14px;
+}
+
+.suporte-msg.usuario {
+    justify-content: flex-end;
+}
+
+.suporte-msg.assistente {
+    justify-content: flex-start;
+}
+
+.suporte-balao {
+    max-width: 80%;
+
+    padding: 11px 13px;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+    line-height: 1.45;
+
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.suporte-msg.assistente .suporte-balao {
+    background: #e9eef3;
+    color: #18222d;
+
+    border-bottom-left-radius: 3px;
+}
+
+.suporte-msg.usuario .suporte-balao {
+    background: #0785f5;
+    color: #ffffff;
+
+    border-bottom-right-radius: 3px;
+}
+
+.suporte-entrada {
+    display: flex;
+    gap: 8px;
+
+    padding: 12px;
+
+    border-top: 1px solid #d2dce5;
+
+    background: #ffffff;
+}
+
+#suporte-pergunta {
+    flex: 1;
+
+    padding: 11px 12px;
+
+    border: 1px solid #b9c7d3;
+    border-radius: 8px;
+
+    outline: none;
+
+    font-size: 14px;
+}
+
+#suporte-pergunta:focus {
+    border-color: #149cff;
+
+    box-shadow: 0 0 0 2px rgba(20, 156, 255, 0.12);
+}
+
+#suporte-enviar {
+    width: 45px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #0785f5;
+    color: #ffffff;
+
+    font-size: 20px;
+
+    cursor: pointer;
+}
+
+#suporte-enviar:hover {
+    background: #006fd4;
+}
+
+#suporte-enviar:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.suporte-rodape {
+    padding: 7px 10px 9px;
+
+    text-align: center;
+
+    font-size: 10px;
+    color: #6d7d8b;
+
+    background: #ffffff;
+}
+
+
+/* Celular */
+@media (max-width: 600px) {
+
+    .suporte-chat {
+        right: 10px;
+        bottom: 10px;
+    }
+
+    .suporte-abrir {
+        min-width: 205px;
+    }
+
+    .suporte-janela {
+        position: fixed;
+
+        left: 10px;
+        right: 10px;
+        bottom: 82px;
+
+        width: auto;
+        height: 65vh;
+    }
+}
+
+/* Cubo do Assistente Técnico */
+
+.cubo-chat {
+    position: relative;
+    width: 30px;
+    height: 34px;
+    display: inline-block;
+}
+
+.cubo-chat .face {
+    position: absolute;
+    box-sizing: border-box;
+    border: 2px solid #ffffff;
+}
+
+.face-frente {
+    width: 22px;
+    height: 22px;
+    left: 4px;
+    top: 9px;
+    transform: rotate(30deg) skewY(-30deg) scaleY(0.86);
+}
+
+.face-topo {
+    width: 20px;
+    height: 20px;
+    left: 5px;
+    top: 1px;
+    transform: rotate(30deg) skewY(-30deg) scaleY(0.45);
+    transform-origin: bottom;
+}
+
+.face-lado {
+    width: 20px;
+    height: 20px;
+    left: 14px;
+    top: 9px;
+    transform: rotate(-30deg) skewY(30deg) scaleY(0.86);
+    transform-origin: left;
+}
+
+.cubo-chat-menor {
+    transform: scale(0.8);
+    transform-origin: center;
+}
