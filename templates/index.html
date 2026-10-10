@@ -57,19 +57,50 @@
                         <span class="triangulo">!</span>
                     </div>
                 </div>
-            </div>
+                </div> 
+                    <div class="coluna-status">
+                        
 
-            <aside class="status-equipamentos">
-                <h2>Status dos Equipamentos</h2>
-                <div class="status-item"><span>Porta</span><span id="porta" class="indicador"></span></div>
-                <div class="status-item"><span>Retificador</span><span id="retificador" class="indicador"></span></div>
-                <div class="status-item"><span>Ar-condicionado</span><span id="ar_condicionado" class="indicador"></span></div>
-                <div class="status-item"><span>Gerador</span><span id="gerador" class="indicador"></span></div>
-                <div class="status-item"><span>Inversor</span><span id="inversor" class="indicador"></span></div>
-                <div class="status-item"><span>Incêndio</span><span id="incendio" class="indicador"></span></div>
-            </aside>
-        </section>
+                        <aside class="status-equipamentos">
+                            <h2>Status dos Equipamentos</h2>
 
+                            <div class="status-item">
+                                <span>Porta</span>
+                                <span id="porta" class="indicador"></span>
+                            </div>
+
+                            <div class="status-item">
+                                <span>Retificador</span>
+                                <span id="retificador" class="indicador"></span>
+                            </div>
+
+                            <div class="status-item">
+                                <span>Ar-condicionado</span>
+                                <span id="ar_condicionado" class="indicador"></span>
+                            </div>
+
+                            <div class="status-item">
+                                <span>Gerador</span>
+                                <span id="gerador" class="indicador"></span>
+                            </div>
+
+                            <div class="status-item">
+                                <span>Inversor</span>
+                                <span id="inversor" class="indicador"></span>
+                            </div>
+
+                            <div class="status-item">
+                                <span>Incêndio</span>
+                                <span id="incendio" class="indicador"></span>
+                            </div>
+                        </aside>
+
+                        <button id="botao-historico" class="botao-historico" type="button">
+                            HISTÓRICO
+                        </button>
+
+                    </div>
+        </section>            
         <section class="historico">
             <h2>Gráficos / Histórico</h2>
 
@@ -106,7 +137,82 @@
         <p>Trabalho de Conclusão de Curso</p>
         <p>Aluno: [Joilson Correia de Almeida] &nbsp; | &nbsp; Orientador: [Ivan Lucas Arantes] &nbsp; | &nbsp; 2026</p>
     </footer>
-    
+        <div id="historico-modal" class="historico-modal" hidden>
+        <div class="historico-janela" role="dialog" aria-modal="true" aria-labelledby="historico-titulo">
+            <div class="historico-topo">
+                <h2 id="historico-titulo">HISTÓRICO INFRABOX</h2>
+                <button id="historico-fechar" type="button" aria-label="Fechar histórico">×</button>
+            </div>
+
+            <div class="historico-conteudo">
+
+                <div class="hist-filtros">
+                    <label>
+                        Data/hora inicial
+                        <input id="hist-inicio" type="datetime-local">
+                    </label>
+
+                    <label>
+                        Data/hora final
+                        <input id="hist-fim" type="datetime-local">
+                    </label>
+
+                    <label class="hist-check">
+                        <input id="hist-graficos" type="checkbox">
+                        Somente gráficos
+                    </label>
+
+                    <button id="hist-consultar" type="button">
+                        CONSULTAR
+                    </button>
+
+                    <button id="hist-exportar" type="button">EXPORTAR CSV</button>
+                </div>
+
+                <p id="hist-mensagem" class="hist-mensagem">
+                    Selecione um período ou consulte os registros mais recentes.
+                </p>
+
+                <div id="hist-tabela-container" class="hist-tabela-container">
+                    <table class="hist-tabela">
+                        <thead>
+                            <tr>
+                                <th>Data/hora</th>
+                                <th>Temp. °C</th>
+                                <th>DC (V)</th>
+                                <th>R (V)</th>
+                                <th>S (V)</th>
+                                <th>T (V)</th>
+                                <th>Porta</th>
+                                <th>Retificador</th>
+                                <th>Ar-cond.</th>
+                                <th>Gerador</th>
+                                <th>Inversor</th>
+                                <th>Incêndio</th>
+                                <th>Relé 1</th>
+                                <th>Relé 2</th>
+                                <th>Alarme</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hist-tabela-dados"></tbody>
+                    </table>
+                </div>
+
+                <div id="hist-graficos-container" class="hist-graficos-container" hidden>
+                    <div class="hist-grafico-card"><h3>Temperatura (°C)</h3><div class="hist-canvas"><canvas id="hist-grafico-temperatura"></canvas></div></div>
+                    <div class="hist-grafico-card"><h3>Tensão DC (V)</h3><div class="hist-canvas"><canvas id="hist-grafico-dc"></canvas></div></div>
+                    <div class="hist-grafico-card"><h3>Tensão AC — R, S e T (V)</h3><div class="hist-canvas"><canvas id="hist-grafico-ac"></canvas></div></div>
+                </div>
+
+                <div id="hist-paginacao" class="hist-paginacao">
+                    <button id="hist-anterior" type="button">Anterior</button>
+                    <span id="hist-pagina">Página --</span>
+                    <button id="hist-proxima" type="button">Próxima</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
     <!-- Assistente Técnico InfraBox -->
     <div id="suporte-chat" class="suporte-chat">
 

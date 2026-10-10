@@ -663,3 +663,386 @@ async function enviarPerguntaSuporte() {
         suportePergunta.focus();
     }
 }
+
+// Janela de histórico
+const botaoHistorico = document.getElementById("botao-historico");
+const historicoModal = document.getElementById("historico-modal");
+const historicoFechar = document.getElementById("historico-fechar");
+
+botaoHistorico.addEventListener("click", function () {
+    historicoModal.hidden = false;
+});
+
+historicoFechar.addEventListener("click", function () {
+    historicoModal.hidden = true;
+});
+
+historicoModal.addEventListener("click", function (evento) {
+    if (evento.target === historicoModal) {
+        historicoModal.hidden = true;
+    }
+});
+
+document.addEventListener("keydown", function (evento) {
+    if (evento.key === "Escape" && !historicoModal.hidden) {
+        historicoModal.hidden = true;
+    }
+});
+
+// Consulta do histórico D1
+
+let histPaginaAtual = 1;
+let histTotalPaginas = 0;
+let histConsultando = false;
+
+const histInicio = document.getElementById("hist-inicio");
+const histFim = document.getElementById("hist-fim");
+const histGraficos = document.getElementById("hist-graficos");
+const histTabelaContainer = document.getElementById("hist-tabela-container");
+const histGraficosContainer = document.getElementById("hist-graficos-container");
+const histPaginacaoContainer = document.getElementById("hist-paginacao");
+let histCharts = [];
+const histConsultar = document.getElementById("hist-consultar");
+const histExportar = document.getElementById("hist-exportar");
+const histMensagem = document.getElementById("hist-mensagem");
+const histTabelaDados = document.getElementById("hist-tabela-dados");
+const histAnterior = document.getElementById("hist-anterior");
+const histProxima = document.getElementById("hist-proxima");
+const histPagina = document.getElementById("hist-pagina");
+
+function histDataUTC(valor) {
+    if (!valor) return "";
+
+    const data = new Date(valor.replace(" ", "T") + "Z");
+
+    return Number.isNaN(data.getTime())
+        ? valor
+        : data.toLocaleString("pt-BR");
+}
+
+function histNumero(valor) {
+    if (valor === null || valor === undefined) return "--";
+    return Number(valor).toFixed(2);
+}
+
+function histEstado(valor) {
+    return Number(valor) === 1 ? "ON" : "OFF";
+}
+
+function histCodigoAlarme(codigo) {
+    const alarmes = {
+        0: "Normal",
+        1: "Temp. alta",
+        2: "Bat. baixa",
+        3: "Falha AC",
+        4: "Porta",
+        5: "Retificador",
+        6: "Ar-cond.",
+        7: "Gerador",
+        8: "Inversor",
+        9: "Incêndio"
+    };
+
+    return alarmes[Number(codigo)] ?? `Código ${codigo}`;
+}
+
+function histAtualizarPaginacao() {
+    histPagina.textContent =
+        `Página ${histPaginaAtual} de ${histTotalPaginas}`;
+
+    histAnterior.disabled =
+        histConsultando || histPaginaAtual <= 1;
+
+    histProxima.disabled =
+        histConsultando || histPaginaAtual >= histTotalPaginas;
+}
+
+function histRenderizarTabela(registros) {
+    histTabelaDados.replaceChildren();
+
+    for (const registro of registros) {
+        const linha = document.createElement("tr");
+
+        const valores = [
+            histDataUTC(registro.data_hora),
+            histNumero(registro.temperatura),
+            histNumero(registro.bateria),
+            histNumero(registro.fase1),
+            histNumero(registro.fase2),
+            histNumero(registro.fase3),
+            histEstado(registro.porta),
+            histEstado(registro.retificador),
+            histEstado(registro.ar_condicionado),
+            histEstado(registro.gerador),
+            histEstado(registro.inversor),
+            histEstado(registro.incendio),
+            histEstado(registro.rele1),
+            histEstado(registro.rele2),
+            histCodigoAlarme(registro.alarme)
+        ];
+
+        valores.forEach((valor, indice) => {
+            const celula = document.createElement("td");
+            celula.textContent = valor;
+
+            if (indice === valores.length - 1 && Number(registro.alarme) !== 0) {
+                celula.classList.add("hist-alarme-ativo");
+            }
+
+            linha.appendChild(celula);
+        });
+
+        histTabelaDados.appendChild(linha);
+    }
+}
+
+function histParametros() {
+    const parametros = new URLSearchParams();
+    if (histInicio.value) {
+        parametros.set("inicio", new Date(histInicio.value).toISOString().slice(0, 19).replace("T", " "));
+    }
+    if (histFim.value) {
+        parametros.set("fim", new Date(histFim.value).toISOString().slice(0, 19).replace("T", " "));
+    }
+    return parametros;
+}
+
+function histAlternarVisualizacao(graficos) {
+    histTabelaContainer.hidden = graficos;
+    histPaginacaoContainer.hidden = graficos;
+    histGraficosContainer.hidden = !graficos;
+}
+
+function histDestruirGraficos() {
+    histCharts.forEach(grafico => grafico.destroy());
+    histCharts = [];
+}
+
+function histDesenharGraficos(registros) {
+    histDestruirGraficos();
+    const ordem = [...registros].reverse();
+    const labels = ordem.map(r => histDataUTC(r.data_hora));
+    const opcoes = {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { intersect: false, mode: "index" },
+        plugins: { legend: { labels: { color: "#dcecff" } } },
+        scales: {
+            x: { ticks: { color: "#a9c8df", maxTicksLimit: 7, maxRotation: 0 }, grid: { color: "rgba(20,174,243,.12)" } },
+            y: { ticks: { color: "#a9c8df" }, grid: { color: "rgba(20,174,243,.15)" } }
+        }
+    };
+    const series = [
+        ["hist-grafico-temperatura", [{ label: "Temperatura °C", campo: "temperatura", cor: "#14aef3" }]],
+        ["hist-grafico-dc", [{ label: "Tensão DC", campo: "bateria", cor: "#32d340" }]],
+        ["hist-grafico-ac", [
+            { label: "R", campo: "fase1", cor: "#14aef3" },
+            { label: "S", campo: "fase2", cor: "#e65c90" },
+            { label: "T", campo: "fase3", cor: "#f0a33c" }
+        ]]
+    ];
+    for (const [id, campos] of series) {
+        histCharts.push(new Chart(document.getElementById(id), {
+            type: "line",
+            data: {
+                labels,
+                datasets: campos.map(s => ({
+                    label: s.label,
+                    data: ordem.map(r => r[s.campo] == null ? null : Number(r[s.campo])),
+                    borderColor: s.cor,
+                    backgroundColor: s.cor,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.15,
+                    spanGaps: false
+                }))
+            },
+            options: structuredClone(opcoes)
+        }));
+    }
+}
+
+async function histBuscar(pagina = 1) {
+    if (histConsultando) return;
+    if (histInicio.value && histFim.value && histInicio.value > histFim.value) {
+        histMensagem.textContent = "A data inicial não pode ser posterior à final.";
+        return;
+    }
+    const modoGraficos = histGraficos.checked;
+    histConsultando = true;
+    histConsultar.disabled = true;
+    histAtualizarPaginacao();
+    histMensagem.textContent = "Consultando histórico...";
+    const parametros = histParametros();
+    try {
+        if (modoGraficos) {
+            const registros = [];
+            const maxRegistros = 10000;
+            let total = 0;
+            let numeroPagina = 1;
+            do {
+                parametros.set("limite", "500");
+                parametros.set("pagina", String(numeroPagina));
+                const resposta = await fetch(`/api/historico?${parametros}`, { cache: "no-store" });
+                const dados = await resposta.json();
+                if (!resposta.ok || !dados.ok) throw new Error(dados.erro || `HTTP ${resposta.status}`);
+                total = Number(dados.total) || 0;
+                registros.push(...dados.dados);
+                numeroPagina++;
+                if (!dados.dados.length) break;
+            } while (registros.length < Math.min(total, maxRegistros));
+            histAlternarVisualizacao(true);
+            histDesenharGraficos(registros);
+            histMensagem.textContent = total > registros.length
+                ? `Gráficos com ${registros.length} dos ${total} registros (limite de ${maxRegistros}; refine o período para visualizar todos).`
+                : `${registros.length} registros exibidos nos gráficos históricos.`;
+        } else {
+            parametros.set("limite", "20");
+            parametros.set("pagina", String(pagina));
+            const resposta = await fetch(`/api/historico?${parametros}`, { cache: "no-store" });
+            const dados = await resposta.json();
+            if (!resposta.ok || !dados.ok) throw new Error(dados.erro || `HTTP ${resposta.status}`);
+            histPaginaAtual = dados.pagina;
+            histTotalPaginas = dados.paginas;
+            histRenderizarTabela(dados.dados);
+            histAlternarVisualizacao(false);
+            histMensagem.textContent = `${dados.total} registros encontrados. Exibindo ${dados.dados.length} nesta página.`;
+        }
+    } catch (erro) {
+        console.error("Erro ao consultar histórico:", erro);
+        histMensagem.textContent = "Não foi possível consultar o histórico.";
+        if (modoGraficos) histDestruirGraficos();
+        else {
+            histTabelaDados.replaceChildren();
+            histPaginaAtual = 1;
+            histTotalPaginas = 0;
+        }
+    } finally {
+        histConsultando = false;
+        histConsultar.disabled = false;
+        histAtualizarPaginacao();
+    }
+}
+
+histConsultar.addEventListener("click", () => histBuscar(1));
+
+histAnterior.addEventListener("click", () => {
+    if (histPaginaAtual > 1) {
+        histBuscar(histPaginaAtual - 1);
+    }
+});
+
+histProxima.addEventListener("click", () => {
+    if (histPaginaAtual < histTotalPaginas) {
+        histBuscar(histPaginaAtual + 1);
+    }
+});
+
+histAtualizarPaginacao();
+
+// Exportação CSV de todos os registros do período selecionado.
+async function histExportarCSV() {
+    if (histConsultando) return;
+    if (histInicio.value && histFim.value && histInicio.value > histFim.value) {
+        histMensagem.textContent = "A data inicial não pode ser posterior à final.";
+        return;
+    }
+
+    histConsultando = true;
+    histConsultar.disabled = true;
+    histExportar.disabled = true;
+    histAtualizarPaginacao();
+
+    const parametros = histParametros();
+    const registros = [];
+    const limiteMaximo = 50000;
+
+    try {
+        let pagina = 1;
+        let total = 0;
+        do {
+            parametros.set("pagina", String(pagina));
+            parametros.set("limite", "500");
+            histMensagem.textContent = `Preparando CSV... ${registros.length} registros coletados.`;
+            const resposta = await fetch(`/api/historico?${parametros}`, { cache: "no-store" });
+            if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+            const dados = await resposta.json();
+            if (!dados.ok || !Array.isArray(dados.dados)) {
+                throw new Error(dados.erro || "Resposta inválida do histórico");
+            }
+            total = Number(dados.total) || 0;
+            if (total > limiteMaximo) {
+                throw new Error(`A consulta possui ${total} registros. Restrinja o período para até ${limiteMaximo}.`);
+            }
+            if (dados.dados.length === 0 && registros.length < total) {
+                throw new Error("Consulta interrompida antes de receber todos os registros.");
+            }
+            registros.push(...dados.dados);
+            pagina++;
+        } while (registros.length < total);
+
+        if (!registros.length) {
+            histMensagem.textContent = "Nenhum registro encontrado para exportar.";
+            return;
+        }
+
+        const colunas = [
+            ["Data/hora", r => histDataUTC(r.data_hora)],
+            ["Temperatura (°C)", r => histNumero(r.temperatura)],
+            ["Tensão DC (V)", r => histNumero(r.bateria)],
+            ["Fase R (V)", r => histNumero(r.fase1)],
+            ["Fase S (V)", r => histNumero(r.fase2)],
+            ["Fase T (V)", r => histNumero(r.fase3)],
+            ["Porta", r => histEstado(r.porta)],
+            ["Retificador", r => histEstado(r.retificador)],
+            ["Ar-condicionado", r => histEstado(r.ar_condicionado)],
+            ["Gerador", r => histEstado(r.gerador)],
+            ["Inversor", r => histEstado(r.inversor)],
+            ["Incêndio", r => histEstado(r.incendio)],
+            ["Relé 1", r => histEstado(r.rele1)],
+            ["Relé 2", r => histEstado(r.rele2)],
+            ["Alarme", r => histCodigoAlarme(r.alarme)]
+        ];
+
+        function campoCSV(valor) {
+            let texto = String(valor ?? "").replace(/\r?\n/g, " ");
+            if (/^[=+@\-\t]/.test(texto)) texto = "'" + texto;
+            return '"' + texto.replace(/"/g, '""') + '"';
+        }
+
+        const linhas = [colunas.map(c => campoCSV(c[0])).join(";")];
+        for (const registro of registros.reverse()) {
+            linhas.push(colunas.map(([, ler], indice) => {
+                let valor = ler(registro);
+                if (indice >= 1 && indice <= 5 && valor !== "--") {
+                    valor = valor.replace(".", ",");
+                }
+                return campoCSV(valor);
+            }).join(";"));
+        }
+
+        const blob = new Blob(["\uFEFF", linhas.join("\r\n")], {
+            type: "text/csv;charset=utf-8;"
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const agora = new Date();
+        const dataArquivo = [agora.getFullYear(), String(agora.getMonth() + 1).padStart(2, "0"), String(agora.getDate()).padStart(2, "0")].join("");
+        link.href = url;
+        link.download = `InfraBox_Historico_${dataArquivo}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        histMensagem.textContent = `CSV gerado com ${registros.length} registros do período selecionado.`;
+    } catch (erro) {
+        console.error("Erro ao exportar CSV:", erro);
+        histMensagem.textContent = `Não foi possível exportar o CSV: ${erro.message}`;
+    } finally {
+        histConsultando = false;
+        histConsultar.disabled = false;
+        histExportar.disabled = false;
+        histAtualizarPaginacao();
+    }
+}
+
+histExportar.addEventListener("click", histExportarCSV);

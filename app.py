@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlencode
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from flask import Flask, jsonify, render_template, request
 from google import genai
@@ -138,6 +141,66 @@ def status():
     )
 
     return jsonify(dados)
+
+
+WORKER_HISTORICO = "https://tcc-infrabox-bridge.almeida-joilson.workers.dev/api/historico"
+WORKER_HISTORICO = "https://tcc-infrabox-bridge.almeida-joilson.workers.dev/api/historico"
+
+
+@app.route("/api/historico")
+def historico():
+    parametros = {}
+
+    for nome in ("inicio", "fim", "alarmes", "pagina", "limite"):
+        valor = request.args.get(nome)
+        if valor is not None and valor != "":
+            parametros[nome] = valor
+
+    url = WORKER_HISTORICO
+    if parametros:
+        url += "?" + urlencode(parametros)
+
+    try:
+        requisicao = Request(
+            url,
+            headers={
+                "User-Agent": "InfraBox-TCC/1.0",
+                "Accept": "application/json"
+            }
+        )
+
+        with urlopen(requisicao, timeout=10) as resposta:
+            conteudo = resposta.read()
+            status = resposta.status
+            content_type = resposta.headers.get(
+                "Content-Type",
+                "application/json; charset=utf-8"
+            )
+
+        return app.response_class(
+            response=conteudo,
+            status=status,
+            content_type=content_type
+        )
+
+    except HTTPError as erro:
+        try:
+            detalhe = erro.read().decode("utf-8")
+        except Exception:
+            detalhe = str(erro)
+
+        return jsonify({
+            "ok": False,
+            "erro": "Falha ao consultar histórico",
+            "detalhe": detalhe
+        }), erro.code
+
+    except (URLError, TimeoutError) as erro:
+        return jsonify({
+            "ok": False,
+            "erro": "Não foi possível acessar o histórico",
+            "detalhe": str(erro)
+        }), 502
 
 
 @app.route("/api/suporte", methods=["POST"])
