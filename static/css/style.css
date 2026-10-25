@@ -23,7 +23,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f5;color:va
 .rele span{font-size:clamp(10px,1.3vw,18px);color:#d7e5f2}.rele strong{margin-top:3px;font-size:clamp(13px,1.7vw,24px)}
 .rele1{left:17.2%}.rele2{left:29%}.rele.ativo{background:rgba(0,135,28,.95);border-color:#56ee68}
 .alarme-painel{position:absolute;right:35%;bottom:14%;display:flex;align-items:center;gap:40px}.alarme-painel.oculto{display:none}
-.triangulo{width:clamp(38px,5vw,70px);height:clamp(38px,5vw,70px);display:grid;place-items:center;background:var(--vermelho);color:white;font-size:clamp(26px,4vw,52px);font-weight:bold;clip-path:polygon(50% 0,100% 100%,0 100%);padding-top:12px;animation:piscar .9s infinite}
+.triangulo{width:clamp(38px,5vw,70px);height:clamp(38px,5vw,70px);display:grid;place-items:center;background:var(--vermelho);color:white;font-size:clamp(26px,4vw,52px);font-weight:bold;clip-path:polygon(50% 0,100% 100%,0 100%);padding-top:12px;animation:piscar 1.2s infinite}
 .alarme-painel strong{color:var(--vermelho)}@keyframes piscar{50%{opacity:.35}}
 .status-equipamentos{padding:24px 20px}.status-equipamentos h2,.historico h2{margin:0 0 18px;color:var(--azul);text-align:center;text-transform:uppercase;letter-spacing:.5px}
 .status-item{min-height:74px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(20,174,243,.45);border-bottom:none;font-size:clamp(17px,1.7vw,27px)}

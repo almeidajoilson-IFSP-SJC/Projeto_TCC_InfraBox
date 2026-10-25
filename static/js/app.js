@@ -144,7 +144,7 @@ function definirIndicador(id, emAlarme) {
 
 
 function atualizarNivelBateria(tensao) {
-    const minimo = 10.0;
+    const minimo = 7.0;
     const maximo = 13.0;
 
     let percentual =
@@ -284,7 +284,7 @@ async function atualizarDados() {
         ).textContent =
             Number(
                 dados.temperatura
-            ).toFixed(1);
+            ).toFixed(2);
 
 
         document.getElementById(
@@ -292,7 +292,7 @@ async function atualizarDados() {
         ).textContent =
             Number(
                 dados.bateria
-            ).toFixed(1);
+            ).toFixed(2);
 
 
         document.getElementById(
