@@ -1,363 +1,207 @@
-# Rede e Comunicação - InfraBox TCC
+# Rede e Comunicação – InfraBox TCC
 
-Este documento descreve a arquitetura de rede e comunicação validada da versão TCC do InfraBox.
-
-As informações deste documento representam a arquitetura atual do projeto.
-
-Configurações antigas de rede presentes em versões anteriores da documentação não devem ser utilizadas como referência para a versão atual.
+Arquitetura de rede, serviços web e histórico da versão TCC. Legenda de origem: ver CONHECIMENTO_INFRABOX.md.
 
 ---
 
-## Visão geral da comunicação
+## Visão geral
 
-A versão TCC do InfraBox utiliza comunicação Ethernet para integração entre o painel físico e o sistema web.
+Fluxo dos dados:
 
-Os principais elementos da arquitetura são:
-
-- Mega 2560 Pro Mini;
-- módulo Ethernet W5500;
-- rede Ethernet local;
-- roteador com acesso à Internet;
-- Cloudflare Worker;
-- aplicação web hospedada no Render.
-
-Fluxo principal:
-
-InfraBox / Mega 2560
-→ W5500
-→ rede Ethernet
+InfraBox (Mega 2560 + W5500)
+→ rede Ethernet local
 → roteador / Internet
-→ Cloudflare Worker
-→ Render
-→ interface web InfraBox.
+→ **HTTP, porta 80** → Cloudflare Worker (`tcc-infrabox-bridge.almeida-joilson.workers.dev`)
+→ **HTTPS** → aplicação web no Render (`https://projeto-tcc-infrabox.onrender.com`)
+→ interface web.
+
+O Worker também grava o histórico no banco **Cloudflare D1**.
+
+- Toda comunicação é **iniciada pelo Mega** (conexões de saída). [firmware]
+- **Não é necessário** port forwarding, abertura de porta no roteador nem IP público fixo.
+- **Não há MQTT** nesta versão: não existe broker, tópicos nem credenciais MQTT. A troca de dados usa HTTP e APIs da aplicação. [firmware]
 
 ---
 
 ## Módulo Ethernet
 
-O InfraBox utiliza o módulo:
-
-- W5500.
-
-O W5500 realiza a interface Ethernet entre o Mega 2560 e a rede.
-
-A alimentação documentada do módulo é:
-
-- 3,3 Vcc.
-
-Essa alimentação é fornecida pelo microcontrolador na configuração atual do projeto.
+- W5500, ligado ao Mega por SPI (CS D53). [firmware]
+- Biblioteca de rede: cliente `EthernetClient` para as conexões de saída. [firmware]
 
 ---
 
-## Obtenção do endereço IP
+## Endereçamento IP
 
-A versão atual do InfraBox utiliza:
+### DHCP com fallback [firmware]
 
-- DHCP.
+- O firmware tenta obter endereço por **DHCP**.
+- Se o DHCP falhar, usa endereço de contingência:
+  - IP: **192.168.100.50**
+  - Máscara: **255.255.255.0**
+  - Gateway: **192.168.100.1**
+  - DNS: **192.168.100.1**
+- O fallback não se adapta à rede real. Se a rede local usar outra faixa, o painel com o IP de contingência não terá acesso à Internet nem comunicação com o Worker.
+- O IP obtido por DHCP pode variar. Não há IP permanente e o assistente não conhece o IP atual do painel.
+- Para identificar o IP atribuído: diagnóstico pela porta serial do Mega (Monitor Serial) ou consulta à lista de concessões DHCP do roteador/switch da instalação.
 
-O endereço IP local do painel é obtido automaticamente a partir da infraestrutura de rede disponível.
+### Endereço MAC [firmware]
 
-Portanto, não considerar um endereço IP local específico como configuração permanente do InfraBox.
+- MAC no código: **DE:AD:BE:EF:FE:ED**.
+- Esse MAC é um valor fixo do código, não credencial nem identificador exclusivo de fabricação.
+- Vários painéis com o mesmo MAC no mesmo segmento de rede podem gerar conflito; essa situação exige avaliação antes de instalar mais de um painel na mesma rede.
 
-Endereços IP fixos presentes em versões anteriores do projeto ou em documentação antiga não representam a configuração atual.
+### Requisitos da rede local
 
----
-
-## Requisitos da rede local
-
-Para funcionamento da comunicação remota, o InfraBox deve possuir:
-
-- conexão Ethernet;
-- acesso a uma rede com DHCP;
-- acesso à Internet;
-- rota de saída disponível para a comunicação com o serviço Cloudflare utilizado pelo projeto.
-
-O InfraBox inicia as comunicações necessárias com os serviços externos.
-
----
-
-## Comunicação iniciada pelo InfraBox
-
-A arquitetura atual utiliza comunicação iniciada pelo próprio Mega 2560.
-
-Isso significa que o InfraBox realiza conexões de saída para consultar comandos e enviar informações.
-
-Não é necessário estabelecer uma conexão externa diretamente da Internet para o endereço IP local do Mega.
+- Porta Ethernet ativa.
+- DHCP disponível (ou rede compatível com o fallback 192.168.100.0/24).
+- Acesso à Internet com saída HTTP (porta 80) para o domínio do Worker.
 
 ---
 
-## Redirecionamento de portas
+## Por que existe o Worker (ponte HTTP → HTTPS)
 
-A arquitetura atual não exige:
-
-- port forwarding;
-- abertura de porta de entrada no roteador para o Mega;
-- endereço IP público fixo para o InfraBox.
-
-O painel inicia as comunicações necessárias a partir da rede local.
-
-Não orientar o usuário a abrir portas no roteador como procedimento normal de instalação do InfraBox.
+- O Render suporta HTTPS.
+- A implementação embarcada usada no Mega/W5500 **não implementa TLS**; por isso o Mega envia HTTP ao Worker, e o Worker encaminha por HTTPS ao Render.
+- Essa é uma limitação da implementação utilizada, não incapacidade universal do W5500 ou do Render.
+- O Worker encaminha a requisição ao Render preservando caminho e parâmetros de consulta.
+- **O trecho Mega → Worker não é criptografado.** Não afirmar que toda a comunicação é criptografada.
 
 ---
 
-## Cloudflare Worker
+## APIs utilizadas pelo Mega [firmware/aplicação]
 
-O Cloudflare Worker utilizado pelo projeto funciona como ponte de comunicação entre o Mega 2560 e o serviço hospedado no Render.
+| Rota | Método | Função | Intervalo programado |
+|---|---|---|---|
+| `/api/mega/update` | POST | Envia grandezas e estados (temperatura, tensão DC, tensões AC, alarmes, relés) | 5 s |
+| `/api/mega/comando` | GET | Consulta comandos pendentes para os relés | 1 s |
 
-Na arquitetura atual:
+- O mecanismo de identificação de comandos evita que um comando antigo seja reaplicado sobre o estado atual (por exemplo, sobrescrevendo uma alteração feita na tela local). A forma exata dessa identificação deve ser conferida no código.
+- Intervalos programados não garantem latência máxima, execução periódica exata ou nível de serviço.
 
-Mega 2560
-→ HTTP
-→ Cloudflare Worker
-→ HTTPS
-→ Render.
+### Como um comando chega ao relé
 
-O Cloudflare Worker não é o sistema principal de supervisão.
+1. O usuário aciona o relé na interface web.
+2. A aplicação no Render registra o comando.
+3. O Mega, na consulta periódica a `/api/mega/comando` (via Worker), recebe o comando novo.
+4. O firmware altera a saída do relé e o novo estado segue na próxima atualização.
 
-Ele funciona como intermediário de comunicação.
+O estado exibido é o estado lógico do Mega, não confirmação mecânica do contato nem do equipamento externo.
 
----
+### Servidor local no firmware
 
-## Motivo da ponte HTTP/HTTPS
-
-O Mega 2560 e o W5500 utilizados no projeto não realizam diretamente a comunicação HTTPS moderna utilizada pela aplicação hospedada no Render.
-
-Por esse motivo, a arquitetura utiliza o Cloudflare Worker como ponte.
-
-O Mega se comunica com o Worker utilizando HTTP.
-
-O Worker realiza a comunicação HTTPS necessária com o Render.
-
-Não orientar a substituição dessa arquitetura por conexão HTTPS direta do Mega sem uma alteração documentada do projeto.
-
----
-
-## Porta utilizada pelo Mega
-
-Na arquitetura atual, a comunicação HTTP entre o Mega e o Cloudflare Worker utiliza:
-
-- porta 80.
-
-Essa informação refere-se à conexão de saída iniciada pelo Mega.
-
-Não significa que a porta 80 do roteador da instalação deva ser aberta ou redirecionada para o InfraBox.
-
----
-
-## Render
-
-O Render hospeda a aplicação web do InfraBox.
-
-Na arquitetura atual, o Render é responsável por:
-
-- aplicação web;
-- interface de supervisão;
-- disponibilização das informações recebidas do InfraBox;
-- recebimento dos estados enviados pelo Mega;
-- gerenciamento dos comandos remotos utilizados pelo sistema.
-
-O Cloudflare Worker não substitui a aplicação hospedada no Render.
-
----
-
-## Envio das informações do painel
-
-O Mega envia periodicamente as informações do InfraBox para o sistema remoto.
-
-Na configuração atual, o envio periódico ocorre aproximadamente a cada:
-
-- 5 segundos.
-
-Entre as informações enviadas podem estar:
-
-- temperatura;
-- tensão DC;
-- tensões AC;
-- estados dos alarmes;
-- estados dos relés;
-- demais informações previstas pelo firmware atual.
-
-Alterações locais importantes, como mudança do estado dos relés, podem provocar atualização antecipada sem aguardar o próximo ciclo periódico.
-
----
-
-## Consulta de comandos
-
-O Mega consulta periodicamente o sistema para verificar a existência de novos comandos.
-
-Na configuração atual, essa consulta ocorre aproximadamente a cada:
-
-- 1 segundo.
-
-Os comandos remotos são tratados pelo firmware do Mega.
-
-O Mega permanece responsável pelo estado efetivo das saídas físicas.
-
----
-
-## Controle dos relés
-
-Os dois relés podem receber comandos provenientes de:
-
-- interface local Nextion;
-- interface web.
-
-O Mega 2560 mantém o estado efetivo dos relés.
-
-A comunicação remota não substitui o controle local realizado pelo microcontrolador.
-
-Quando um novo comando remoto válido é identificado, o Mega executa a alteração correspondente e sincroniza o estado do sistema.
-
----
-
-## Identificação de novos comandos
-
-A arquitetura atual utiliza identificação de eventos de comando para evitar que um estado remoto antigo seja aplicado continuamente sobre o estado físico do equipamento.
-
-Um comando remoto somente deve ser tratado como novo quando sua identificação indicar um novo evento.
-
-Isso permite que alterações realizadas localmente pelo Nextion não sejam continuamente sobrescritas por um comando remoto antigo.
-
-A lógica específica pertence ao firmware e não deve ser modificada sem procedimento documentado.
+O firmware possui `EthernetServer` na porta 80 para atendimento local. Isso é diferente da conexão de saída para o Worker. As rotas locais da versão em uso não estão documentadas; não presumir endpoint como `/status`. [pendente]
 
 ---
 
 ## Interface web
 
-A interface web consulta periodicamente o estado disponibilizado pela aplicação.
-
-Na configuração atual, a atualização visual ocorre aproximadamente a cada:
-
-- 1 segundo.
-
-A frequência de atualização da interface web não significa necessariamente que todos os sensores físicos tenham realizado uma nova leitura nesse mesmo instante.
-
----
-
-## Funcionamento local
-
-As funções locais essenciais do InfraBox não dependem da disponibilidade da Internet.
-
-O painel mantém localmente:
-
-- leitura dos sensores;
-- processamento dos alarmes;
-- interface Nextion;
-- controle dos relés;
-- funções previstas no firmware local.
-
-Uma falha de comunicação com a nuvem não deve ser interpretada automaticamente como falha completa do painel.
-
-O funcionamento local e a comunicação remota devem ser analisados separadamente durante um diagnóstico.
+- Endereço: **https://projeto-tcc-infrabox.onrender.com**.
+- A interface consulta `/api/status` com atualização visual aproximada de **1 s**.
+- Na aplicação examinada, o painel é mostrado como **online** quando houve atualização nos últimos **10 s**; conferir se a versão publicada mantém esse limiar.
+- A atualização da tela a cada 1 s não significa nova leitura dos sensores a cada 1 s; o Mega envia dados a cada 5 s.
+- Os valores atuais ficam na memória da aplicação no Render; não há garantia de que sobrevivam a reinicialização do serviço. O histórico fica no D1.
+- A disposição da interface pode variar conforme navegador, tamanho de tela e dispositivo.
 
 ---
 
-## Falha de Internet
+## Histórico – Cloudflare D1
 
-Na ausência de acesso à Internet:
+### Gravação
 
-- o painel continua executando suas funções locais;
-- o Nextion permanece como interface local;
-- o Mega continua processando sensores e alarmes;
-- os relés permanecem sob controle do Mega.
+- O Worker recebe o POST `/api/mega/update`, consulta o último registro e **grava se for a primeira medição ou se tiverem passado ao menos 10 s** desde a última gravação. Em seguida encaminha a requisição ao Render.
+- Se a gravação falhar, a falha é registrada e o encaminhamento ao Render prossegue. Isso não garante sucesso de todas as operações de rede.
+- Não há armazenamento local no Mega, fila offline nem reenvio de amostras perdidas. Períodos sem comunicação geram **lacunas no histórico**.
 
-As funções que dependem da comunicação com os serviços remotos podem ficar indisponíveis enquanto a conexão externa estiver ausente.
+### Estrutura da tabela [autor – console do D1]
 
----
+```sql
+CREATE TABLE medicoes (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ data_hora TEXT NOT NULL DEFAULT (datetime('now')),
+ temperatura REAL,
+ bateria REAL,
+ fase1 REAL,
+ fase2 REAL,
+ fase3 REAL,
+ porta INTEGER,
+ retificador INTEGER,
+ ar_condicionado INTEGER,
+ gerador INTEGER,
+ inversor INTEGER,
+ incendio INTEGER,
+ rele1 INTEGER,
+ rele2 INTEGER,
+ alarme INTEGER
+);
+```
 
-## Falha da aplicação remota
+- `data_hora` é o momento da **inserção no banco**, não o instante da leitura no Mega.
+- `datetime('now')` do SQLite usa **UTC**.
+- A conversão para horário local e o fuso usado nos filtros da interface **não foram conferidos**. Não afirmar que a tela mostra horário de Brasília. O Worker acrescenta `Z` ao interpretar o registro para filtros de intervalo, o que não basta para validar a exibição. [pendente]
+- O campo `alarme` existe, mas sua codificação (valor numérico ou bitmask) não está documentada. [pendente]
+- Não existe coluna ONLINE/OFFLINE. O banco não grava estado offline automaticamente.
 
-Caso o serviço remoto esteja temporariamente indisponível, o funcionamento local do InfraBox deve ser analisado independentemente.
+### Consulta – `GET /api/historico` (atendida pelo Worker)
 
-Não orientar reinicialização, alteração de firmware ou modificação da rede interna apenas porque a interface web remota está temporariamente indisponível.
+Parâmetros:
 
-O diagnóstico deve primeiro identificar se a falha está:
+- `inicio` e `fim` (período);
+- `alarmes=1` (filtrar registros com alarme);
+- `pagina` (mínimo 1);
+- `limite` (de 1 a 500; padrão 100).
 
-- no painel;
-- na rede local;
-- no acesso à Internet;
-- na comunicação com o Cloudflare;
-- no serviço hospedado no Render.
+Ordenação: `ORDER BY id DESC`. Resposta com os campos `ok`, `total`, `pagina`, `limite`, `paginas` e `dados`.
 
----
+O limite da API é diferente da paginação de 20 linhas exibida na tela de histórico.
 
-## Endereço IP local
+### Tela de histórico
 
-Como o InfraBox utiliza DHCP, o endereço IP local pode variar conforme a infraestrutura de rede.
-
-Não informar um endereço IP específico como endereço padrão ou permanente da versão atual.
-
-Quando for necessário identificar o endereço IP atribuído ao painel, utilizar os procedimentos de diagnóstico documentados.
-
----
-
-## Configurações antigas
-
-Informações antigas que indiquem:
-
-- endereço IP fixo;
-- configuração manual permanente de IP;
-- comunicação direta com servidor antigo;
-- necessidade de notebook funcionando como gateway;
-
-não devem ser utilizadas como arquitetura atual do InfraBox TCC.
-
-A arquitetura descrita neste documento deve prevalecer para questões de rede e comunicação da versão atual.
-
----
-
-## Segurança da arquitetura
-
-Não fornecer procedimentos não documentados para:
-
-- abrir portas externas no roteador;
-- criar redirecionamento de portas;
-- expor diretamente o Mega à Internet;
-- substituir o Cloudflare Worker;
-- modificar protocolos de comunicação;
-- alterar endpoints do sistema;
-- alterar a lógica de comandos;
-- alterar mecanismos de identificação dos comandos;
-- modificar a infraestrutura do Render.
-
-Alterações na arquitetura de comunicação devem ser encaminhadas ao suporte técnico.
+- O Render consulta o Worker para o histórico.
+- A interface mostra o período escolhido, tabela, gráficos e botão para exportar CSV.
+- Quantidade máxima exportada no CSV e se a exportação inclui todos os registros: não conferido. [pendente]
+- Não presumir que os gráficos principais e o histórico por período usam a mesma fonte de dados ou a mesma retenção. [pendente]
 
 ---
 
-## Diagnóstico básico de comunicação
+## Render e Cloudflare
 
-Quando houver problema de comunicação remota, verificar separadamente:
-
-1. se o InfraBox está energizado;
-2. se o painel funciona localmente;
-3. se o display Nextion está operando;
-4. se o cabo Ethernet está conectado;
-5. se existe conexão física com a rede;
-6. se a rede disponibiliza DHCP;
-7. se existe acesso à Internet;
-8. se a comunicação com os serviços remotos está disponível.
-
-Não concluir que o Mega ou o W5500 apresentam defeito apenas porque a interface web está offline.
-
-O diagnóstico deve identificar em qual etapa da comunicação ocorre a falha.
+- O Render hospeda a aplicação Python (Flask, servida por Gunicorn). Detalhes de implantação em GRAVACAO_FIRMWARE.md.
+- O plano contratado, custos, número de workers do Gunicorn, SLA, disponibilidade e versões de runtime não estão documentados.
+- Segundo a documentação do Render consultada em 28/10/2026, no plano gratuito o serviço web é suspenso após 15 minutos sem tráfego de entrada e demora cerca de 1 minuto para voltar; e o PostgreSQL gratuito expira 30 dias após a criação. Essas regras valem apenas se o plano gratuito estiver em uso e podem mudar.
+- O D1 foi adotado para manter o histórico separado da aplicação. Não há gratuidade ilimitada, backup automático ou ausência de cotas documentados.
 
 ---
 
-## Informações não documentadas
+## Funcionamento local e falha de Internet
 
-Não fornecer por estimativa:
+- Com o painel energizado e o firmware em operação, as funções locais continuam sem Internet: leitura dos sensores, processamento dos alarmes, tela Nextion e comando local dos dois relés.
+- Sem Internet ficam indisponíveis: envio ao Render, comandos remotos, atualização da interface web e gravação de histórico (gerando lacunas).
+- Tarefas de rede no firmware podem ser bloqueantes; não há garantia de latência fixa nem de ausência total de impacto na tela local durante falhas de rede.
+- Falha de Internet não indica, por si só, falha do painel.
 
-- endereço IP atual do painel;
-- endereço IP que será atribuído pelo DHCP;
-- configurações internas do roteador;
-- usuário ou senha de equipamentos de rede;
-- portas adicionais não documentadas;
-- parâmetros internos do Cloudflare;
-- parâmetros internos do Render;
+---
+
+## Diagnóstico de comunicação
+
+Verificar em sequência:
+
+1. Painel energizado e tela Nextion operando (funcionamento local).
+2. Cabo Ethernet conectado e link físico ativo no switch/roteador.
+3. IP atribuído: Monitor Serial do Mega ou lista DHCP do roteador. Se aparecer 192.168.100.50, o DHCP falhou e o painel está no fallback.
+4. Rede com acesso à Internet e saída HTTP (porta 80) liberada.
+5. Disponibilidade da aplicação no Render (abrir a interface web).
+6. Status online/offline na interface (online = atualização nos últimos 10 s na aplicação examinada).
+
+Não concluir que o Mega ou o W5500 estão com defeito apenas porque a interface web está offline.
+
+---
+
+## Não fornecer por estimativa
+
+- IP atual do painel ou IP que o DHCP atribuirá;
+- configurações internas do roteador e credenciais de rede;
+- senhas, chaves ou tokens do Render, Cloudflare, Gemini ou GitHub;
+- portas ou rotas não documentadas;
 - procedimentos para modificar a arquitetura de comunicação.
 
-Quando uma informação necessária não estiver disponível na documentação técnica atual, informar:
-
-"Essa informação não está disponível na documentação técnica atual."
-
-Quando necessário, encaminhar a situação ao suporte técnico.
+Alterações de arquitetura devem ser tratadas com o desenvolvedor.

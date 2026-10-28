@@ -1,310 +1,146 @@
-# Gravação de Firmware - InfraBox TCC
+# Gravação de Firmware, HMI e Atualização da Aplicação – InfraBox TCC
 
-Este documento descreve o procedimento validado para gravação do firmware no microcontrolador da versão TCC do InfraBox.
+Este documento trata de **três procedimentos diferentes**, que não devem ser confundidos:
 
-A gravação deve utilizar somente arquivo de firmware fornecido ou validado para o equipamento correspondente.
-
-Não modificar o firmware durante este procedimento.
+| Procedimento | O que atualiza | Ferramenta |
+|---|---|---|
+| Gravação do firmware do Mega | Programa do ATmega2560 | AVRDUDESS 2.17 (arquivo .HEX) |
+| Gravação da HMI do Nextion | Telas do display | Nextion Editor + adaptador CP2102 |
+| Implantação da aplicação web | Aplicação Flask no Render | GitHub (branch main) + Auto-Deploy |
 
 ---
+
+# Parte 1 – Firmware do Mega 2560
+
+## Firmware de referência
+
+- O firmware em uso é identificado pelo arquivo **TCC_ARDUINO_DISPLAY_V4(1).ino**. [firmware]
+- Ao receber um arquivo de firmware, conferir se corresponde a essa versão. Não substituir pela versão V1 antiga apenas por ela aparecer em material histórico.
+- O arquivo gravado deve ser o .HEX compilado a partir do firmware validado para o painel. Não usar .HEX de origem desconhecida ou de outro equipamento.
 
 ## Microcontrolador
 
-O controlador principal utilizado no InfraBox TCC é:
+- Placa: Arduino Mega 2560 Pro Mini; microcontrolador **ATmega2560**.
+- Na ferramenta de gravação, selecionar o ATmega2560. Não testar outros microcontroladores por tentativa.
 
-- Mega 2560 Pro Mini;
-- microcontrolador da família ATmega2560.
+## Procedimento informado (AVRDUDESS)
 
-O procedimento de gravação deve utilizar a configuração correspondente ao ATmega2560.
+O procedimento existente do projeto utiliza o **AVRDUDESS 2.17, versão portable**, que dispensa instalação e dispensa a IDE Arduino para gravar um .HEX já compilado.
 
-Não selecionar outro microcontrolador por tentativa.
+Materiais:
 
----
+- computador com porta USB;
+- cabo USB compatível com o conector da placa (tipo de conector não documentado; identificar pela placa física);
+- AVRDUDESS 2.17 portable;
+- arquivo .HEX validado.
 
-## Método recomendado
+Passos informados:
 
-Para gravação de firmware sem necessidade de utilizar a IDE Arduino, o procedimento documentado utiliza:
+1. Descompactar o pacote do AVRDUDESS em uma pasta e executar o programa.
+2. Conectar o Mega ao computador e verificar se o sistema reconheceu a porta serial.
+3. No AVRDUDESS, selecionar o microcontrolador ATmega2560 e a porta serial correspondente (o número da porta COM varia de um computador para outro).
+4. Usar a função de detecção e conferir no rodapé se a placa foi detectada. Não gravar se a detecção falhar.
+5. No campo **Flash**, selecionar o arquivo .HEX correto e conferir que corresponde ao equipamento.
+6. Executar a gravação e aguardar a mensagem de conclusão (**PRONTO**) no rodapé. Não desconectar o cabo USB nem interromper o processo durante a gravação.
 
-- AVRDUDESS 2.17.
+### Parâmetros não documentados [pendente]
 
-É recomendada a utilização da versão:
+Programmer, baud rate, bootloader, fuse bits e lock bits não estão documentados para o InfraBox. Por isso este procedimento é o **procedimento informado pelo projeto, não um roteiro plenamente validado**. Sem esses parâmetros:
 
-- PORTABLE.
-
-A versão portable pode ser utilizada sem instalação convencional do programa no computador.
-
----
-
-## Materiais necessários
-
-Para realizar a gravação são necessários:
-
-- computador com conexão USB;
-- cabo USB tipo B compatível com o Mega 2560 Pro Mini;
-- AVRDUDESS 2.17;
-- arquivo de firmware no formato .HEX fornecido ou validado para o InfraBox.
-
-Não utilizar um arquivo .HEX de origem desconhecida.
-
----
-
-## Preparação do AVRDUDESS
-
-Quando utilizada a versão portable:
-
-1. obter o pacote do AVRDUDESS 2.17;
-2. descompactar o arquivo ZIP em uma pasta específica;
-3. abrir a pasta descompactada;
-4. executar o AVRDUDESS.
-
-Não é necessário instalar a IDE Arduino apenas para realizar a gravação de um arquivo .HEX já fornecido.
-
----
-
-## Conexão do Mega 2560
-
-Conectar o Mega 2560 Pro Mini ao computador utilizando o cabo USB adequado.
-
-Após conectar a placa:
-
-- verificar se o computador reconheceu a conexão;
-- identificar a porta serial correspondente;
-- selecionar essa porta no AVRDUDESS.
-
-A porta serial pode variar de um computador para outro.
-
-Não assumir um número de porta COM fixo.
-
----
-
-## Configuração do microcontrolador
-
-No AVRDUDESS, utilizar a configuração correspondente ao:
-
-- ATmega2560.
-
-Selecionar corretamente:
-
-- microcontrolador;
-- porta serial;
-- parâmetros previstos no procedimento de gravação.
-
-Após configurar a porta, utilizar a função de detecção disponível no AVRDUDESS.
-
-Verificar no rodapé do programa se a placa foi detectada corretamente.
-
-Não iniciar a escrita do firmware se a detecção não estiver correta.
-
----
-
-## Arquivo de firmware
-
-O firmware utilizado para gravação deve estar no formato:
-
-- .HEX.
-
-O arquivo deve ser fornecido ou validado para a versão correspondente do InfraBox.
-
-No campo Flash do AVRDUDESS:
-
-1. selecionar o arquivo .HEX correto;
-2. conferir se o arquivo selecionado corresponde ao equipamento;
-3. conferir as configurações antes da gravação.
-
-Não substituir o arquivo fornecido por outro firmware apenas por possuir extensão .HEX.
-
----
-
-## Gravação
-
-Após confirmar:
-
-- conexão USB;
-- porta serial;
-- microcontrolador correto;
-- detecção da placa;
-- arquivo .HEX correto;
-
-iniciar o processo de escrita do firmware utilizando a função de gravação do AVRDUDESS.
-
-Durante a gravação:
-
-- não desconectar o cabo USB;
-- não interromper o processo deliberadamente;
-- aguardar a conclusão indicada pelo programa.
-
-A documentação utiliza a função de escrita/inicialização do AVRDUDESS para realizar a gravação.
-
----
-
-## Confirmação da gravação
-
-Após iniciar a gravação, aguardar a indicação de conclusão apresentada pelo AVRDUDESS.
-
-O procedimento documentado orienta aguardar a mensagem:
-
-- PRONTO
-
-no rodapé do programa.
-
-Após uma gravação bem-sucedida, verificar o funcionamento do sistema.
-
----
-
-## Verificação após a gravação
-
-Após concluir a gravação, verificar se o InfraBox:
-
-- inicializa corretamente;
-- executa o firmware;
-- comunica-se adequadamente com os componentes previstos;
-- apresenta funcionamento compatível com a versão instalada.
-
-Quando aplicável, verificar também:
-
-- display Nextion;
-- leitura dos sensores;
-- estados dos alarmes;
-- funcionamento dos relés;
-- comunicação Ethernet.
-
-Não alterar configurações de hardware ou firmware como tentativa de correção sem procedimento documentado.
-
----
+- não sugerir valores de programmer ou baud;
+- não alterar fuse bits ou lock bits;
+- não fornecer comandos manuais do avrdude nem recuperação de bootloader.
 
 ## Porta COM não encontrada
 
-Se a porta serial não aparecer no AVRDUDESS:
-
-- verificar a conexão USB;
-- verificar o cabo utilizado;
-- verificar se o computador reconheceu o dispositivo;
-- desconectar e reconectar o cabo quando necessário;
-- verificar novamente as portas disponíveis.
-
-Não selecionar aleatoriamente uma porta COM.
-
-Se o equipamento continuar sem ser reconhecido e não houver procedimento adicional documentado, encaminhar a situação ao suporte técnico.
-
----
+- Verificar conexão e cabo USB (alguns cabos só fornecem alimentação).
+- Verificar se o computador reconheceu o dispositivo; desconectar e reconectar.
+- Não escolher porta COM aleatória.
+- Persistindo, contatar o desenvolvedor.
 
 ## Falha na detecção
 
-Se o AVRDUDESS não detectar corretamente o ATmega2560:
+- Não gravar.
+- Conferir porta, cabo e seleção do ATmega2560 e repetir a detecção.
+- Persistindo, interromper e contatar o desenvolvedor. Não alterar parâmetros desconhecidos por tentativa.
 
-- não iniciar a gravação;
-- conferir a porta serial selecionada;
-- conferir a conexão USB;
-- conferir a configuração correspondente ao ATmega2560;
-- repetir a detecção após as verificações.
+## Verificação após a gravação
 
-Se a detecção continuar falhando, interromper o procedimento e consultar o suporte técnico.
+- Inicialização do Mega e do display Nextion.
+- Leituras dos sensores e estados dos alarmes.
+- Comando dos relés pela tela local.
+- Comunicação com a interface web.
+- Monitor Serial: mensagens de diagnóstico (incluindo o IP obtido).
 
-Não alterar parâmetros desconhecidos por tentativa e erro.
+## Firmware e rede
 
----
+O firmware atual usa DHCP com fallback (192.168.100.50). Não gravar firmware com IP fixo individual com base em procedimentos antigos. Ver REDE_COMUNICACAO.md.
 
-## Firmware e configuração de rede
+## Gravação × alteração de firmware
 
-Arquivos ou procedimentos antigos podem conter referências a firmware configurado individualmente com:
+Gravar o .HEX validado é diferente de alterar o código-fonte. Este procedimento não cobre editar código, alterar pinos, sensores, relés, protocolos ou temporizações. Essas demandas devem ser tratadas com o desenvolvedor.
 
-- endereço IP fixo;
-- gateway específico;
-- parâmetros de rede definidos para cada equipamento.
+## Tutorial complementar
 
-Essas referências pertencem a versões anteriores da arquitetura.
+Material externo de referência visual para o AVRDUDESS:
 
-Na versão atual do InfraBox TCC:
+- https://redinfor.migueldc.com/avrdudes-para-arduino/
+- https://www.youtube.com/watch?v=2AGWIazNdmQ
 
-- a rede utiliza DHCP;
-- não deve ser atribuído um IP fixo ao firmware apenas porque esse procedimento aparece em documentação antiga.
-
-Para questões relacionadas à arquitetura atual de rede, utilizar o documento REDE_COMUNICACAO.md como referência.
+Parâmetros, microcontrolador, baud, programmer, fuse bits ou procedimentos de recuperação mostrados nesses materiais não se aplicam automaticamente ao InfraBox.
 
 ---
 
-## Alteração do firmware
+# Parte 2 – HMI do display Nextion
 
-A gravação de um arquivo .HEX fornecido para o equipamento é diferente da alteração do código-fonte do firmware.
+## Arquivos
 
-Este procedimento documenta:
+- Display: **NX8048P050-011C-Y** (5 polegadas, 800 × 480, capacitivo).
+- Projeto HMI em uso: **DisplayTCC.HMI** (arquivo editável no Nextion Editor). [autor]
+- O arquivo editável (.HMI) é diferente do arquivo compilado que é transferido para o display.
+- Versão do Nextion Editor usada no projeto: **não confirmada**. [pendente]
+- Velocidade serial (baud) de comunicação com o Mega e de transferência: **não confirmada**. [pendente]
 
-- carregamento;
-- configuração da ferramenta;
-- gravação do arquivo .HEX;
-- verificação básica após a gravação.
+## Meio de programação [autor]
 
-Este procedimento não autoriza:
+- A programação do Nextion é feita com **adaptador USB–serial TTL CP2102 (seis pinos)**, ligado diretamente ao notebook.
+- O sinal é **serial TTL**, não RS-232. Não usar adaptador RS-232 com níveis bipolares.
+- Tensão dos sinais e da alimentação do adaptador não identificadas. Não garantir que o USB/CP2102 alimente adequadamente o display e não indicar ligação ao pino de tensão do adaptador sem especificação. [pendente]
+- Na operação normal, o display liga-se à Serial2 do Mega (TX2 D16 → RX do display; RX2 D17 ← TX do display; GND comum).
 
-- editar o código-fonte;
-- alterar pinos;
-- alterar sensores;
-- alterar quantidade de relés;
-- alterar protocolos de comunicação;
-- alterar temporizações;
-- alterar a programação do Nextion;
-- modificar parâmetros internos não documentados.
+## Limites deste procedimento
 
-Solicitações desse tipo devem ser encaminhadas ao suporte técnico.
+Sem baud rate, versão do editor e ligação de alimentação confirmados, não há roteiro completo validado de gravação da HMI. Informar os dados conhecidos e indicar os que faltam. Alterações nas telas são alterações de projeto e devem ser tratadas com o desenvolvedor.
 
 ---
 
-## Arquivo .HEX incorreto ou desconhecido
+# Parte 3 – Implantação da aplicação web (Render)
 
-Se houver dúvida sobre qual arquivo .HEX utilizar:
+Atualizar a aplicação web **não grava** nada no Mega nem no display.
 
-- não realizar a gravação;
-- não escolher o arquivo apenas pelo nome;
-- não utilizar firmware de outro equipamento como teste.
+## Configuração identificada [autor – print do Render]
 
-Confirmar o arquivo correto com o suporte técnico antes de prosseguir.
+- Repositório: **almeidajoilson-IFSP-SJC/Projeto_TCC_InfraBox** (visibilidade pública/privada não confirmada).
+- Branch vinculada: **main**.
+- Build command: `pip install -r requirements.txt`.
+- Start command: `gunicorn app:app` (o Gunicorn carrega o objeto `app` do arquivo `app.py`).
+- **Auto-Deploy: On Commit**.
+- URL: https://projeto-tcc-infrabox.onrender.com.
 
----
+## Estrutura da aplicação
 
-## Informações não documentadas
+app.py, templates/index.html, static/js/app.js, arquivos CSS, requirements.txt e a pasta base_conhecimento (arquivos Markdown do assistente técnico).
 
-Não fornecer por estimativa:
+## Como atualizar
 
-- valores de parâmetros do AVRDUDESS que não estejam documentados;
-- programmer não especificado;
-- baud rate não especificado;
-- configurações de fuse bits;
-- lock bits;
-- parâmetros avançados do ATmega2560;
-- comandos manuais do avrdude;
-- procedimentos de recuperação de bootloader;
-- alterações no firmware.
+1. Editar os arquivos localmente.
+2. Fazer commit e enviar (push) para a branch **main** do repositório vinculado.
+3. O Render inicia a implantação automaticamente (Auto-Deploy On Commit), executando o build e o start.
+4. Acompanhar o resultado da implantação no painel do Render; a implantação pode falhar (por exemplo, erro de dependência ou de inicialização).
 
-Quando a informação necessária não estiver disponível na documentação técnica atual, informar:
+Salvar um arquivo no editor (VS Code ou outro) **não publica** a alteração. É preciso que o commit chegue à branch vinculada.
 
-"Essa informação não está disponível na documentação técnica atual."
+## Base de conhecimento do assistente
 
-Quando necessário, encaminhar a situação ao suporte técnico.
-
-## Tutorial complementar em vídeo
-
-Existe um tutorial externo que pode ser utilizado como referência visual para auxiliar no uso do AVRDUDESS.
-
-O tutorial deve ser tratado apenas como material complementar.
-
-As configurações específicas do InfraBox devem seguir a documentação técnica oficial deste projeto.
-
-Caso o tutorial apresente:
-
-- parâmetros diferentes;
-- outro microcontrolador;
-- outro método de gravação;
-- valores de baud rate;
-- programmer diferente;
-- fuse bits;
-- lock bits;
-- procedimentos de recuperação;
-
-essas informações não devem ser automaticamente aplicadas ao InfraBox.
-
-Em caso de divergência, prevalece a documentação técnica do InfraBox.
-
-Tutorial de referência:
-
-[(https://redinfor.migueldc.com/avrdudes-para-arduino/)],
-[https://www.youtube.com/watch?v=2AGWIazNdmQ]
+- A pasta base_conhecimento deve conter apenas os sete arquivos operacionais. Relatórios de revisão, backups ou versões antigas na mesma pasta são carregados junto e podem contaminar as respostas.
+- Credenciais (chave da API Gemini e outras) não fazem parte desta base e não devem ser expostas.

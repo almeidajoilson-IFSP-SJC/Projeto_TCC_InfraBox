@@ -1,325 +1,148 @@
-# Instalação - InfraBox TCC
+# Instalação – InfraBox TCC
 
-Este documento contém as orientações validadas para instalação física da versão TCC do InfraBox.
-
-As orientações de segurança devem ser respeitadas durante toda a instalação.
+Orientações para instalação física da versão TCC. Detalhes de cabos e ligações em CABEAMENTO.md; características elétricas em HARDWARE.md.
 
 ---
 
 ## Qualificação do instalador
 
-A instalação do InfraBox deve ser realizada por profissional com treinamento ou qualificação técnica adequada.
+A instalação deve ser feita por profissional com treinamento ou qualificação técnica adequada, com experiência em:
 
-O técnico deve possuir experiência com:
-
-- instalações de infraestrutura;
+- infraestrutura de estações;
 - alarmes por contato seco;
 - telecomandos;
-- instalações elétricas relacionadas ao sistema;
-- redes Ethernet quando necessário para a instalação.
+- instalações elétricas de baixa tensão relacionadas ao sistema;
+- redes Ethernet, quando necessário.
 
-Antes de instalar ou operar o equipamento, a documentação técnica deve ser consultada.
+Consultar esta documentação antes de instalar ou operar o equipamento.
 
 ---
 
 ## Condição do equipamento durante a instalação
 
-Durante:
+Durante instalação, ligação de alarmes e sensores, intervenções internas e manutenção, o InfraBox e os circuitos externos ligados a ele (alimentação, medição AC e cargas dos relés) devem estar desenergizados. Não há procedimento documentado para intervenção com o painel energizado.
 
-- instalação;
-- ligação dos alarmes;
-- conexão dos sensores;
-- intervenções internas;
-- manutenção;
+---
 
-o InfraBox deve permanecer desligado.
+## Compatibilidade de alimentação
 
-Não realizar conexões internas com o painel energizado.
+Antes de instalar, confirmar a versão do painel:
+
+- **Versão TCC**: alimentação positiva nominal de **12 V** (fonte 12 V / 2 A com entrada 100–220 V AC, bateria e conversor XL4015). **Não ligar diretamente a -48 V.**
+- **Versão de produção V2**: alimentação de -48 V. Procedimentos da V2 não se aplicam ao TCC e vice-versa.
+
+Em estações alimentadas em -48 V, o painel TCC exige adaptação distinta (conversão -48 V → 12 V) ainda não dimensionada nem fornecida com o painel.
 
 ---
 
 ## Local de instalação
 
-O InfraBox deve ser instalado em ambiente climatizado.
-
-Faixa de temperatura ambiente documentada:
-
-- mínima: 2 °C;
-- máxima: 40 °C.
-
-O painel deve ser instalado em local que permita:
-
-- acesso para instalação;
-- acesso para manutenção;
-- passagem adequada dos cabos;
-- conexão com a infraestrutura Ethernet;
-- aterramento adequado.
+- Ambiente climatizado, temperatura ambiente recomendada pelo projeto entre **2 °C e 40 °C**.
+- Local com acesso para instalação e manutenção, passagem adequada dos cabos, conexão à rede Ethernet e ao ponto de aterramento.
 
 ---
 
-## Instalação do gabinete
+## Gabinete
 
-O gabinete utilizado no InfraBox TCC é fabricado pela SCHUHMACHER.
-
-O gabinete é destinado à instalação em parede.
-
-As dimensões e os desenhos de fixação estão disponíveis no Manual do Usuário.
-
-Durante a instalação:
-
-- instalar o conjunto completo;
-- não retirar componentes internos para realizar a fixação;
-- utilizar os elementos de fixação previstos;
-- preservar a disposição interna dos componentes.
-
-Não modificar a posição dos componentes internos sem procedimento técnico documentado.
+- Gabinete informado no documento original: fabricante **SCHUHMACHER**, instalação em parede.
+- Dimensões e desenhos de fixação estavam referenciados a um “Manual do Usuário” que não está nesta base. Sem esse documento, não informar dimensões nem furação. [pendente]
+- Instalar o conjunto completo, sem retirar componentes internos para a fixação, e preservar a disposição interna.
 
 ---
 
-## Furação para entrada dos cabos
+## Furação para entrada de cabos
 
-Quando for necessário realizar furos para:
-
-- eletrodutos;
-- alimentação;
-- comunicação;
-- sensores;
-- demais cabos previstos;
-
-verificar previamente a posição dos componentes internos.
-
-A furação deve ser realizada de maneira que não danifique:
-
-- placa eletrônica;
-- sensores;
-- módulos;
-- cabeamento interno;
-- demais componentes do painel.
-
-Os caminhos destinados aos cabos de comunicação devem permanecer separados dos caminhos destinados aos cabos de energia AC e DC.
+Antes de furar o gabinete para eletrodutos e cabos, verificar a posição dos componentes internos para não danificar placas, sensores, módulos ou cabeamento. Manter caminhos separados para comunicação e para energia AC e DC.
 
 ---
 
-## Posicionamento em relação à rede Ethernet
+## Posicionamento em relação à rede
 
-O painel deve ser instalado o mais próximo possível do:
-
-- switch;
-- roteador;
-- ponto de conexão da rede Ethernet.
-
-A distância documentada entre o InfraBox e o ponto de conexão Ethernet é de no máximo:
-
-- 50 metros.
-
-A conexão deve utilizar cabo Ethernet/UTP blindado.
-
----
-
-## Separação entre comunicação e energia
-
-O cabeamento Ethernet não deve compartilhar a mesma tubulação utilizada pelos cabos de energia.
-
-Devem ser utilizados caminhos separados para:
-
-- comunicação Ethernet;
-- alimentação AC;
-- alimentação DC.
-
-Nunca utilizar a mesma tubulação para cabos de comunicação Ethernet e cabos de energia AC/DC.
-
-Essa separação deve ser mantida para reduzir interferências na comunicação e preservar a instalação adequada do sistema.
+- Instalar o painel o mais próximo possível do switch, roteador ou ponto de rede.
+- Critério do projeto: até **50 m** de cabo entre o InfraBox e o ponto de conexão Ethernet.
+- O tipo/categoria do cabo Ethernet a utilizar não está especificado; ver CABEAMENTO.md.
 
 ---
 
 ## Aterramento
 
-O aterramento deve ser realizado antes da energização do painel.
-
-O InfraBox deve ser conectado ao ponto comum ou à malha única de aterramento da instalação.
-
-O aterramento é necessário para:
-
-- segurança operacional;
-- redução de ruídos;
-- redução de problemas de comunicação;
-- redução de flutuações dos sinais.
-
-Nunca utilizar o neutro da instalação elétrica como aterramento.
-
-Quando houver cabo blindado, a blindagem deve seguir o procedimento de aterramento previsto na documentação.
+- Ligar o condutor de proteção do painel ao ponto comum ou à malha de aterramento da instalação **antes da energização**.
+- O aterramento contribui para a segurança e para a redução de ruído nos sinais e na comunicação.
+- O neutro não deve ser usado como terra.
+- Não unir neutro, PE e GND eletrônico sem esquema que determine essa ligação.
+- Procedimento de aterramento de blindagem de cabos: não documentado.
 
 ---
 
-## Alimentação da versão TCC
+## Medição AC
 
-A alimentação nominal do InfraBox TCC é:
-
-- 12 Vcc.
-
-O estágio conversor utilizado na versão TCC admite entrada entre:
-
-- 9 e 16 Vcc.
-
-A versão TCC não deve receber diretamente alimentação de -48 Vcc.
-
-Em uma instalação de telecomunicações baseada em -48 Vcc, deve ser utilizado conversor DC/DC isolado adequado, com entrada compatível com o sistema -48 Vcc e saída apropriada de 12 Vcc para o painel TCC.
+- Conferir o tipo de rede antes de ligar os canais:
+  - 220 V entre fases: canais A-B, B-C, C-A;
+  - 380 V entre fases com neutro: canais A-N, B-N, C-N (≈ 220 V por canal).
+- **Não aplicar 380 V diretamente aos canais.** Sem neutro disponível, não há ligação documentada para 380 V.
+- Fusíveis de 250 mA no circuito de medição AC.
+- Cabo e número de condutores: ver CABEAMENTO.md.
 
 ---
 
-## Proteção da alimentação
+## Alarmes
 
-A instalação documentada utiliza proteção por fusíveis.
-
-Valores máximos documentados:
-
-- alimentação DC: fusível de no máximo 1 A;
-- circuito de monitoramento AC: fusível de no máximo 250 mA.
-
-Não aumentar os valores dos fusíveis sem procedimento técnico documentado.
+- Ligar contatos secos às entradas D30–D35 conforme a identificação dos bornes.
+- Não ligar potencial externo aos bornes sem conhecer topologia, polaridade e referência.
+- Não ligar em paralelo um mesmo contato ao InfraBox e a entradas de outros equipamentos sem avaliação técnica.
 
 ---
 
-## Instalação da medição AC
+## Ethernet
 
-O circuito de monitoramento AC possui tensão máxima documentada de:
-
-- 250 Vca.
-
-Não aplicar 380 Vca diretamente às entradas dos sensores de tensão AC.
-
-Em instalações onde existam 380 Vca entre fases, a documentação orienta realizar a medição utilizando:
-
-- fase e neutro,
-
-de forma que a tensão aplicada ao sensor permaneça dentro da faixa permitida.
-
-Não ultrapassar 250 Vca na entrada do sensor.
-
----
-
-## Cabeamento da medição AC
-
-Para as conexões dos sensores de tensão AC, a documentação recomenda:
-
-- cabo PP;
-- 3 x 1 mm²;
-- cobre flexível.
-
-Cabos de seção superior podem dificultar a instalação e podem comprometer fisicamente as conexões internas.
-
-Os detalhes de cabeamento devem ser consultados também no documento específico de cabeamento.
-
----
-
-## Cabeamento da alimentação DC
-
-Para a alimentação DC:
-
-- seção máxima documentada: 1,5 mm²;
-- recomendação: cabo PP 2 x 1 mm²;
-- condutor de cobre flexível.
-
-Não utilizar cabos de seção superior à permitida sem procedimento técnico documentado.
-
----
-
-## Instalação dos alarmes
-
-Os alarmes de infraestrutura são conectados às entradas digitais previstas no InfraBox.
-
-Não executar paralelismo de um mesmo contato de alarme com entradas de outros equipamentos de:
-
-- transmissão;
-- comutação;
-- dados;
-- outros sistemas de monitoramento,
-
-quando esse paralelismo não estiver previsto no projeto.
-
-A documentação informa que equipamentos diferentes podem trabalhar com tensões de circuito aberto diferentes, provocando interferência entre os sistemas.
-
-Quando houver necessidade de compartilhar um mesmo sinal de alarme entre equipamentos, a solução deve ser avaliada pelo suporte técnico.
-
----
-
-## Conexão Ethernet
-
-A comunicação Ethernet utiliza:
-
-- conector RJ45;
-- cabo Ethernet/UTP blindado.
-
-O cabo deve ser conectado entre o InfraBox e a infraestrutura de rede disponível.
-
-A instalação deve evitar proximidade e compartilhamento de infraestrutura com cabos de potência.
+Conectar o cabo RJ45 entre o InfraBox e a infraestrutura de rede, evitando proximidade e compartilhamento de eletroduto com cabos de potência. A rede deve oferecer DHCP e saída para a Internet (ver REDE_COMUNICACAO.md).
 
 ---
 
 ## Verificações antes da energização
 
-Antes de energizar o InfraBox, verificar:
+Com tudo desenergizado, verificar:
 
-- fixação correta do gabinete;
-- ausência de danos durante a instalação;
-- aterramento conectado;
-- alimentação compatível com a versão TCC;
+- fixação do gabinete e ausência de danos;
+- condutor de proteção conectado;
+- alimentação compatível com a versão TCC (12 V, nunca -48 V direto);
 - polaridade das conexões DC;
-- fusíveis corretos;
-- conexões dos sensores;
-- conexões dos alarmes;
-- conexão Ethernet;
+- fusível DC de 1 A e fusíveis AC de 250 mA;
+- ligação dos canais AC conforme a rede;
+- conexões dos sensores, alarmes e relés;
+- cabo Ethernet conectado;
 - separação entre comunicação e energia;
 - ausência de conexões soltas.
 
-Não energizar o painel enquanto houver dúvida sobre uma conexão elétrica.
+Não energizar enquanto houver dúvida sobre uma conexão.
 
 ---
 
 ## Sequência de energização
 
-Após concluir e verificar todas as conexões:
+1. Confirmar a instalação do painel e o condutor de proteção.
+2. Conferir as conexões elétricas, sensores, alarmes e Ethernet.
+3. Confirmar os valores dos fusíveis, instalados com o circuito desenergizado.
+4. Energizar por último a alimentação DC do painel, pelo meio de seccionamento previsto na instalação.
 
-1. confirmar que o painel está corretamente instalado;
-2. confirmar o aterramento;
-3. conferir as conexões elétricas;
-4. conferir os sensores e alarmes;
-5. conferir a conexão Ethernet;
-6. confirmar os valores dos fusíveis;
-7. realizar a conexão final da alimentação DC.
-
-O fusível da alimentação DC deve ser a última conexão realizada durante a inicialização do sistema.
+A base anterior indicava o fusível DC como a última conexão. A inserção de fusível não deve ser tratada como manobra segura sob carga por padrão. O meio de seccionamento da alimentação do painel (chave, disjuntor ou outro) não está documentado. [pendente]
 
 ---
 
 ## Após a energização
 
-Após energizar o painel, verificar:
+Verificar:
 
-- inicialização do Mega 2560;
-- inicialização do display Nextion;
-- funcionamento da interface local;
-- indicação das grandezas monitoradas;
+- inicialização do Mega e do display Nextion;
+- funcionamento da tela local;
+- leituras de temperatura, tensão DC e tensões AC coerentes com a instalação;
 - estado dos alarmes;
-- comunicação Ethernet.
+- comunicação com a interface web (status online).
 
-Caso o equipamento apresente comportamento diferente do documentado, não realizar modificações internas não previstas.
-
-Utilizar o procedimento de diagnóstico documentado ou encaminhar a situação ao suporte técnico.
+Se o comportamento diferir do esperado, não fazer modificações internas. Seguir o diagnóstico em REDE_COMUNICACAO.md ou contatar o desenvolvedor.
 
 ---
 
 ## Alterações durante a instalação
 
-Não realizar, sem documentação específica:
-
-- alteração do circuito eletrônico;
-- mudança da posição dos componentes;
-- inclusão de sensores;
-- inclusão de relés;
-- expansão de entradas;
-- alteração da alimentação interna;
-- alteração do firmware;
-- alteração da programação do Nextion.
-
-Essas situações devem ser encaminhadas ao fornecedor ou suporte técnico.
+Não fazem parte dos procedimentos documentados: alterar circuitos, mudar a posição de componentes, incluir sensores, relés ou entradas, alterar a alimentação interna, alterar o firmware ou a programação do Nextion. Encaminhar ao desenvolvedor.
