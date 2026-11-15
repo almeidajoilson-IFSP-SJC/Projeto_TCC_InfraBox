@@ -1,6 +1,6 @@
-# Instalação – InfraBox TCC
+# Instalação – InfraBox V3
 
-Orientações para instalação física da versão TCC. Detalhes de cabos e ligações em CABEAMENTO.md; características elétricas em HARDWARE.md.
+Orientações para instalação física do InfraBox V3. Detalhes de cabos e ligações em CABEAMENTO.md; características elétricas em HARDWARE.md.
 
 ---
 
@@ -28,10 +28,10 @@ Durante instalação, ligação de alarmes e sensores, intervenções internas e
 
 Antes de instalar, confirmar a versão do painel:
 
-- **Versão TCC**: alimentação positiva nominal de **12 V** (fonte 12 V / 2 A com entrada 100–220 V AC, bateria e conversor XL4015). **Não ligar diretamente a -48 V.**
-- **Versão de produção V2**: alimentação de -48 V. Procedimentos da V2 não se aplicam ao TCC e vice-versa.
+- **InfraBox V3**: alimentação positiva nominal de **12 V** (fonte 12 V / 2 A com entrada 100–220 V AC, bateria e conversor DC/DC abaixador). **Não ligar diretamente a -48 V.**
+- **Versão de produção V2**: alimentação de -48 V. Procedimentos da V2 não se aplicam ao InfraBox V3 e vice-versa.
 
-Em estações alimentadas em -48 V, o painel TCC exige adaptação distinta (conversão -48 V → 12 V) ainda não dimensionada nem fornecida com o painel.
+Em estações alimentadas em -48 V, o InfraBox V3 exige adaptação distinta (conversão -48 V → 12 V) ainda não dimensionada nem fornecida com o painel.
 
 ---
 
@@ -105,7 +105,7 @@ Com tudo desenergizado, verificar:
 
 - fixação do gabinete e ausência de danos;
 - condutor de proteção conectado;
-- alimentação compatível com a versão TCC (12 V, nunca -48 V direto);
+- alimentação compatível com o InfraBox V3 (12 V, nunca -48 V direto);
 - polaridade das conexões DC;
 - fusível DC de 1 A e fusíveis AC de 250 mA;
 - ligação dos canais AC conforme a rede;

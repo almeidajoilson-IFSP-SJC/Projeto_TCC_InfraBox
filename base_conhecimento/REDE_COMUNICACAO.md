@@ -1,6 +1,6 @@
-# Rede e Comunicação – InfraBox TCC
+# Rede e Comunicação – InfraBox V3
 
-Arquitetura de rede, serviços web e histórico da versão TCC. Legenda de origem: ver CONHECIMENTO_INFRABOX.md.
+Arquitetura de rede, serviços web e histórico do InfraBox V3. Legenda de origem: ver CONHECIMENTO_INFRABOX.md.
 
 ---
 
@@ -72,11 +72,13 @@ O Worker também grava o histórico no banco **Cloudflare D1**.
 
 | Rota | Método | Função | Intervalo programado |
 |---|---|---|---|
-| `/api/mega/update` | POST | Envia grandezas e estados (temperatura, tensão DC, tensões AC, alarmes, relés) | 5 s |
+| `/api/mega/update` | POST | Envia grandezas e estados (temperatura, tensão DC, tensões AC, alarmes, relés) | 5 s e imediatamente após mudança de estado dos relés |
 | `/api/mega/comando` | GET | Consulta comandos pendentes para os relés | 1 s |
 
 - O mecanismo de identificação de comandos evita que um comando antigo seja reaplicado sobre o estado atual (por exemplo, sobrescrevendo uma alteração feita na tela local). A forma exata dessa identificação deve ser conferida no código.
 - Intervalos programados não garantem latência máxima, execução periódica exata ou nível de serviço.
+- No firmware, a aquisição das grandezas, a atualização do display local e a verificação dos botões locais e dos alarmes ocorrem a cada **500 ms**. [firmware]
+- Nos ensaios, o tempo médio entre o comando na interface web e a comutação do relé foi de aproximadamente **0,5 s**. [ensaio]
 
 ### Como um comando chega ao relé
 
@@ -108,7 +110,7 @@ O firmware possui `EthernetServer` na porta 80 para atendimento local. Isso é d
 
 ### Gravação
 
-- O Worker recebe o POST `/api/mega/update`, consulta o último registro e **grava se for a primeira medição ou se tiverem passado ao menos 10 s** desde a última gravação. Em seguida encaminha a requisição ao Render.
+- O Worker recebe o POST `/api/mega/update`, consulta o último registro e **grava se for a primeira medição ou se tiverem passado ao menos 10 s** desde a última gravação. Em seguida encaminha a requisição ao Render. Como o painel envia dados a cada 5 s, o intervalo efetivo entre registros fica em torno de 10 a 11 s.
 - Se a gravação falhar, a falha é registrada e o encaminhamento ao Render prossegue. Isso não garante sucesso de todas as operações de rede.
 - Não há armazenamento local no Mega, fila offline nem reenvio de amostras perdidas. Períodos sem comunicação geram **lacunas no histórico**.
 

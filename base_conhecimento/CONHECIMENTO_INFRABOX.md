@@ -1,4 +1,4 @@
-# Base de Conhecimento Técnica – InfraBox (versão TCC)
+# Base de Conhecimento Técnica – InfraBox V3
 
 Documento geral da base. Os detalhes estão nos arquivos temáticos:
 
@@ -17,7 +17,7 @@ Documento geral da base. Os detalhes estão nos arquivos temáticos:
 
 Nesta base, os dados técnicos são identificados pela origem:
 
-- **[firmware]** – valor identificado no código do firmware TCC examinado (arquivo TCC_ARDUINO_DISPLAY_V4(1).ino) ou nos arquivos da aplicação examinados durante a consolidação da base.
+- **[firmware]** – valor identificado no código do firmware do InfraBox V3 examinado (arquivo TCC_ARDUINO_DISPLAY_V4.1.ino) ou nos arquivos da aplicação examinados durante a consolidação da base.
 - **[autor]** – configuração ou fato informado pelo autor do projeto.
 - **[datasheet]** – característica de componente publicada pelo fabricante, válida nas condições do datasheet; não é qualificação do conjunto montado.
 - **[ensaio]** – resultado de ensaio realizado, válido apenas para a configuração, polaridade e condição ensaiadas.
@@ -29,7 +29,8 @@ Nesta base, os dados técnicos são identificados pela origem:
 ## Identificação do projeto
 
 - Nome do projeto: **InfraBox**.
-- Título acadêmico: **Desenvolvimento de Sistema Modular de Telemetria e Telecomando para Estações de Telecomunicação**.
+- Título acadêmico: **Sistema Modular de Telemetria e Telecomando para Estações de Telecomunicação**.
+- Versão documentada nesta base: **InfraBox V3**, desenvolvida no Trabalho de Conclusão de Curso e avaliada em bancada.
 - Autor e desenvolvedor: **Joilson Correia de Almeida**, estudante de Engenharia de Controle e Automação do IFSP – Campus São José dos Campos, autor deste Trabalho de Conclusão de Curso (TCC).
 - Contato de suporte técnico: almeida.joilson@aluno.ifsp.edu.br.
 
@@ -48,7 +49,7 @@ Motivação do projeto:
 - telecomando remoto de cargas ou dispositivos por contatos de relé;
 - apoio à priorização de atendimentos e à decisão de mobilizar gerador.
 
-O InfraBox informa grandezas e estados. Ele não calcula autonomia de bateria a partir da tensão, e não há resultado medido de economia operacional obtida com o seu uso.
+O InfraBox informa grandezas e estados. Ele não calcula autonomia de bateria a partir da tensão (a autonomia citada em HARDWARE.md é cálculo ideal, não função do painel), e não há resultado medido de economia operacional obtida com o seu uso.
 
 ---
 
@@ -59,22 +60,22 @@ O InfraBox informa grandezas e estados. Ele não calcula autonomia de bateria a 
 | V0 | Arduino Uno em protoboard, comunicação Wi-Fi, plataforma Adafruit. |
 | V1 | Painéis montados e instalados em campo, Wi-Fi/Adafruit, leitura de temperatura e umidade. |
 | V2 (em produção corporativa) | Ethernet, integração com Zabbix, alimentação de -48 V, 16 posições de entrada/saída, sem display. A placa AC própria foi incorporada à evolução. |
-| TCC (objeto desta base) | Alimentação positiva nominal de 12 V, Arduino Mega 2560 Pro Mini, Ethernet W5500, seis entradas digitais utilizadas e posições reservadas, dois relés, display Nextion, aplicação web própria (Flask no Render), Cloudflare Worker e histórico no Cloudflare D1. |
+| InfraBox V3 (objeto desta base) | Alimentação positiva nominal de 12 V, Arduino Mega 2560 Pro Mini, Ethernet W5500, seis entradas digitais utilizadas e posições reservadas, dois relés, display Nextion, aplicação web própria (Flask no Render), Cloudflare Worker e histórico no Cloudflare D1. |
 
 Pontos importantes:
 
-- **Esta base trata da versão TCC**, salvo quando indicado que a informação é da versão de produção (V2).
+- **Esta base trata do InfraBox V3**, salvo quando indicado que a informação é da versão de produção (V2).
 - Nenhuma versão do InfraBox realiza medição de corrente como função do produto. A corrente de alimentação citada na base foi medida externamente com multímetro, em ensaio de consumo.
-- A umidade foi medida na V1. A versão TCC não mede umidade.
-- O display Nextion é uma evolução introduzida no TCC; não entrou na produção corporativa.
-- **A versão TCC não deve receber -48 V diretamente.** Uma eventual conversão de -48 V para 12 V é adaptação distinta, ainda a dimensionar; não há conversor -48 V/12 V instalado ou fornecido com o painel TCC.
+- A umidade foi medida na V1. O InfraBox V3 não mede umidade.
+- O display Nextion é uma evolução introduzida no InfraBox V3; não entrou na produção corporativa.
+- **O InfraBox V3 não deve receber -48 V diretamente.** Uma eventual conversão de -48 V para 12 V é adaptação distinta, ainda a dimensionar; não há conversor -48 V/12 V instalado ou fornecido com o InfraBox V3.
 
 ---
 
-## Arquitetura resumida da versão TCC
+## Arquitetura resumida do InfraBox V3
 
 - Controlador: Arduino Mega 2560 Pro Mini (ATmega2560).
-- Alimentação: fonte 12 V / 2 A, bateria, fusível de 1 A, conversor step-down XL4015 ajustado para 5 V.
+- Alimentação: fonte 12 V / 2 A e bateria de lítio 12 V / 2,4 Ah em paralelo, fusível de 1 A, conversor DC/DC abaixador (step-down) ajustado para 5 V.
 - Medições: tensão DC positiva (A7), três canais de tensão AC (A0, A1, A2) em placa própria com ZMPT101B, temperatura por sonda DS18B20 (D2).
 - Estados digitais: porta, retificador, ar-condicionado, gerador, inversor e incêndio (D30 a D35).
 - Telecomando: dois relés (D22 e D24).
@@ -123,7 +124,7 @@ O documento original do projeto indica instalação em ambiente climatizado, com
 ## Calibração e ajustes
 
 - **Canais AC**: cada canal da placa AC possui trimpot individual. O ajuste é feito comparando a leitura do InfraBox com um multímetro, girando o trimpot do canal correspondente lentamente. A biblioteca do firmware também possui fator de sensibilidade (configurado em 308). Ver HARDWARE.md.
-- **Tensão DC (A7)**: não há trimpot de calibração no divisor da versão TCC. A conversão usa fator fixo no firmware (3,87). O trimpot do XL4015 ajusta a tensão de alimentação de 5 V e **não deve ser usado para calibrar a indicação da bateria**.
+- **Tensão DC (A7)**: não há trimpot de calibração no divisor do InfraBox V3. A conversão usa fator fixo no firmware (3,87). O trimpot do conversor DC/DC ajusta a tensão de alimentação de 5 V e **não deve ser usado para calibrar a indicação da bateria**.
 - Não existe documento de calibração separado no pacote desta base. O procedimento disponível é o descrito em HARDWARE.md.
 - Ajustes não são calibração rastreável; o resultado depende do instrumento de comparação utilizado.
 

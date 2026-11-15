@@ -1,4 +1,4 @@
-# Gravação de Firmware, HMI e Atualização da Aplicação – InfraBox TCC
+# Gravação de Firmware, HMI e Atualização da Aplicação – InfraBox V3
 
 Este documento trata de **três procedimentos diferentes**, que não devem ser confundidos:
 
@@ -14,7 +14,7 @@ Este documento trata de **três procedimentos diferentes**, que não devem ser c
 
 ## Firmware de referência
 
-- O firmware em uso é identificado pelo arquivo **TCC_ARDUINO_DISPLAY_V4(1).ino**. [firmware]
+- O firmware em uso é identificado pelo arquivo **TCC_ARDUINO_DISPLAY_V4.1.ino**. [firmware]
 - Ao receber um arquivo de firmware, conferir se corresponde a essa versão. Não substituir pela versão V1 antiga apenas por ela aparecer em material histórico.
 - O arquivo gravado deve ser o .HEX compilado a partir do firmware validado para o painel. Não usar .HEX de origem desconhecida ou de outro equipamento.
 
@@ -96,9 +96,9 @@ Parâmetros, microcontrolador, baud, programmer, fuse bits ou procedimentos de r
 ## Arquivos
 
 - Display: **NX8048P050-011C-Y** (5 polegadas, 800 × 480, capacitivo).
-- Projeto HMI em uso: **DisplayTCC.HMI** (arquivo editável no Nextion Editor). [autor]
+- Projeto HMI em uso: **Display_Nextion_TCC.HMI** (arquivo editável no Nextion Editor). [autor]
 - O arquivo editável (.HMI) é diferente do arquivo compilado que é transferido para o display.
-- Versão do Nextion Editor usada no projeto: **não confirmada**. [pendente]
+- Versão do Nextion Editor usada no projeto: **1.68.1**. [autor]
 - Velocidade serial (baud) de comunicação com o Mega e de transferência: **não confirmada**. [pendente]
 
 ## Meio de programação [autor]
@@ -110,7 +110,7 @@ Parâmetros, microcontrolador, baud, programmer, fuse bits ou procedimentos de r
 
 ## Limites deste procedimento
 
-Sem baud rate, versão do editor e ligação de alimentação confirmados, não há roteiro completo validado de gravação da HMI. Informar os dados conhecidos e indicar os que faltam. Alterações nas telas são alterações de projeto e devem ser tratadas com o desenvolvedor.
+Sem baud rate e ligação de alimentação confirmados, não há roteiro completo validado de gravação da HMI. Informar os dados conhecidos e indicar os que faltam. Alterações nas telas são alterações de projeto e devem ser tratadas com o desenvolvedor.
 
 ---
 

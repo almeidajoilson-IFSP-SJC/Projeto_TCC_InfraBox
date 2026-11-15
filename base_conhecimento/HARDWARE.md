@@ -1,14 +1,14 @@
-# Hardware – InfraBox TCC
+# Hardware – InfraBox V3
 
-Descrição do hardware da versão TCC. Legenda de origem dos dados: [firmware], [autor], [datasheet], [ensaio], [cálculo], [pendente] (ver CONHECIMENTO_INFRABOX.md).
+Descrição do hardware do InfraBox V3. Legenda de origem dos dados: [firmware], [autor], [datasheet], [ensaio], [cálculo], [pendente] (ver CONHECIMENTO_INFRABOX.md).
 
-Informações da versão de produção (V2, -48 V) aparecem apenas quando identificadas como tal e não se aplicam ao TCC.
+Informações da versão de produção (V2, -48 V) aparecem apenas quando identificadas como tal e não se aplicam ao InfraBox V3.
 
 ---
 
 ## Placas de circuito impresso
 
-- O InfraBox TCC utiliza **duas PCBs de desenvolvimento próprio**: a **placa principal** e a **placa de medição AC**. [autor]
+- O InfraBox V3 utiliza **duas PCBs de desenvolvimento próprio**: a **placa principal** e a **placa de medição AC**. [autor]
 - Ambas foram projetadas pelo autor no Proteus e depois fabricadas e montadas. [autor]
 - Os sensores ZMPT101B são componentes comerciais. A placa que integra os três canais de medição AC é de autoria do desenvolvedor; o transformador sensor não foi fabricado por ele. [autor]
 - Existem orçamentos de fabricação das placas de 2025; preços e quantidades não constam desta base. [pendente]
@@ -66,32 +66,31 @@ O Mega é a fonte do estado lógico informado de entradas e relés. Esse estado 
 ### Componentes e ligação
 
 - Fonte: **12 V, 2 A, 24 W**, entrada informada de **100–220 V AC**. [autor]
-- O painel TCC é alimentado nominalmente em **12 V**.
-- Conversor instalado: módulo **XL4015 step-down (abaixador)**, com saída ajustada fisicamente em **5 V**. [autor]
-- O XL4015 **não é conversor isolado**.
-- Ligação relatada pelo autor: fonte → conjunto de bateria → **fusível de vidro de 1 A na via positiva** → conversor XL4015 → saída de 5 V alimentando os circuitos e o display. [autor]
+- O InfraBox V3 é alimentado nominalmente em **12 V**.
+- Conversor instalado: módulo **conversor DC/DC abaixador (step-down)**, com saída ajustada fisicamente em **5 V** por trimpot. [autor]
+- O conversor abaixador **não é isolado**.
+- Ligação: fonte e conjunto de bateria em paralelo → **fusível de vidro de 1 A na via positiva**, em série com o barramento de 12 V → após o fusível, divisor de medição DC (A7) e conversor DC/DC abaixador → saída de 5 V alimentando os circuitos e o display. [autor]
+- Se o fusível abrir, todo o painel é desligado e a aplicação web indica **OFFLINE** após 10 s sem atualização.
 
-### Características comerciais do XL4015 [datasheet/comercial]
+### Limites do conversor
 
-- Entrada: 5–32 V.
-- Saída ajustável: 1–30 V, sempre menor que a entrada.
-- Corrente: 3,5 A nominal, 5 A máximo.
-
-Esses valores comerciais não garantem desempenho contínuo na montagem e **não definem a faixa de alimentação autorizada do painel nem da entrada de medição DC**. A faixa 5–32 V é do módulo conversor; o painel é especificado em 12 V nominais. Não aplicar 32 V ao painel ou ao divisor de medição com base nesse valor.
+O modelo comercial do conversor não é especificado nesta base. Características do módulo conversor **não definem a faixa de alimentação autorizada do painel nem da entrada de medição DC**: o painel é especificado em 12 V nominais. Não aplicar tensões acima desse valor ao painel ou ao divisor de medição com base na faixa de entrada do módulo.
 
 ### Bateria
 
-- Capacidade informada pelo usuário como **“2400 mA”**. A unidade correta não está confirmada: “mA” é unidade de corrente, enquanto capacidade se expressa em mAh ou Ah. Não converter automaticamente para 2400 mAh ou 2,4 Ah. [pendente]
-- Química da bateria, capacidade correta, BMS/proteções e controlador de carga ainda não foram identificados. [pendente]
+- Conjunto recarregável de **íons de lítio**, **12 V** e **2,4 Ah**, com células 18650 na configuração **3S1P**. [autor]
+- A bateria tem finalidade didática na bancada: em campo, o painel é alimentado por conversor a partir do banco de baterias de -48 V da estação. [autor]
+- BMS/proteções e controlador de carga do conjunto não estão identificados nesta base. [pendente]
 - A descrição da ligação fonte → bateria não comprova que o carregamento é adequado. Não orientar ligação direta de fonte a bateria nem procedimento de carga sem identificar esses componentes.
-- **Não há autonomia calculada nem ensaio de autonomia realizado.** A autonomia real depende de capacidade útil, química, tensão de corte, temperatura, estado da bateria e variação do consumo.
+- Autonomia ideal calculada: t = C / I = 2,4 Ah / 0,4202 A ≈ **5,71 h (≈ 5 h 43 min)**, com a corrente do ensaio de consumo. [cálculo]
+- **Não houve ensaio de autonomia.** A autonomia real depende de capacidade útil, tensão de corte, temperatura, estado da bateria e variação do consumo; o valor ideal não deve ser apresentado como autonomia garantida.
 
 ### Ensaio de consumo [ensaio]
 
 Condição do ensaio:
 
 - dois relés acionados;
-- multímetro Minipa ET-2042F em série **antes do XL4015**, na faixa de 600 mA.
+- multímetro Minipa ET-2042F em série **antes do conversor DC/DC**, na faixa de 600 mA.
 
 Resultados:
 
@@ -101,16 +100,16 @@ Resultados:
 
 Interpretação:
 
-- O valor inclui as perdas do conversor XL4015 e as cargas alimentadas por esse caminho (Mega, W5500, display, relés, sensores).
+- O valor inclui as perdas do conversor DC/DC e as cargas alimentadas por esse caminho (Mega, W5500, display, relés, sensores).
 - Não inclui as perdas da fonte AC/DC externa nem as cargas externas comutadas pelos contatos dos relés.
-- **Não aplicar novamente eficiência do conversor (por exemplo, 91%) sobre os 5,08 W**: as perdas do conversor já estão dentro do valor medido antes do XL4015.
+- **Não aplicar novamente eficiência do conversor (por exemplo, 91%) sobre os 5,08 W**: as perdas do conversor já estão dentro do valor medido antes do conversor DC/DC.
 - É o consumo observado na condição de ensaio, não potência máxima absoluta garantida.
 - Uma leitura anterior de 2,44 mA foi descartada após a correção da configuração de medição e não deve ser usada.
 - O InfraBox **não possui sensor de corrente**. Corrente e potência não são grandezas disponíveis na interface.
 
 ---
 
-## Medição de tensão DC (versão TCC)
+## Medição de tensão DC (InfraBox V3)
 
 - Entrada analógica: **A7**. [firmware]
 - Divisor resistivo: R1 = **5,8 kΩ** entre a entrada e o nó analógico; R2 = **2 kΩ** entre o nó e a referência; resistores de 0,5 W, tolerância 5%. [autor]
@@ -124,11 +123,11 @@ Interpretação:
 Limites:
 
 - O divisor ideal atingiria 5 V no ADC com 19,5 V na entrada. **Esse valor não é limite operacional validado** e não autoriza aplicar tensões até 19,5 V. [cálculo]
-- Não há trimpot de calibração neste divisor. **O trimpot do XL4015 ajusta a alimentação de 5 V e não deve ser usado para calibrar a indicação da bateria**; alterar a saída de 5 V afeta a alimentação de todo o circuito e a própria referência da conversão.
+- Não há trimpot de calibração neste divisor. **O trimpot do conversor DC/DC ajusta a alimentação de 5 V e não deve ser usado para calibrar a indicação da bateria**; alterar a saída de 5 V afeta a alimentação de todo o circuito e a própria referência da conversão.
 
 ### Medição -48 V (somente versão de produção V2)
 
-A versão de produção usa medição de -48 V com offset positivo: resistores de 47 kΩ e 2,2 kΩ (0,5 W, 1%), trimpot de 1 MΩ e filtro. **Esse circuito e seu procedimento de ajuste não se aplicam ao TCC.**
+A versão de produção usa medição de -48 V com offset positivo: resistores de 47 kΩ e 2,2 kΩ (0,5 W, 1%), trimpot de 1 MΩ e filtro. **Esse circuito e seu procedimento de ajuste não se aplicam ao InfraBox V3.**
 
 ---
 
@@ -184,7 +183,7 @@ A versão de produção usa medição de -48 V com offset positivo: resistores d
 - Resoluções suportadas: 9, 10, 11 e 12 bits (incrementos 0,5; 0,25; 0,125 e 0,0625 °C). O firmware não define `setResolution` explicitamente; a resolução efetiva não foi conferida. [datasheet/pendente]
 - Exatidão especificada pelo fabricante para o CI: **±0,5 °C de -10 °C a +85 °C**, nas condições do datasheet. Não é certificado de exatidão do conjunto montado. [datasheet]
 - Comprimento do cabo: o DS18B20 transmite o valor digital, portanto o comprimento não altera a temperatura por resistência do fio como em um divisor analógico. Cabos mais longos afetam a integridade do barramento 1-Wire (capacitância, pull-up, alimentação, ruído), podendo causar falhas de leitura. Alteração de comprimento deve ser avaliada com o desenvolvedor.
-- O DS18B20 mede apenas temperatura. A versão TCC não mede umidade.
+- O DS18B20 mede apenas temperatura. O InfraBox V3 não mede umidade.
 
 ---
 
@@ -207,7 +206,7 @@ A versão de produção usa medição de -48 V com offset positivo: resistores d
 ### Simulação e ensaios
 
 - Simulação Tinkercad: tensão positiva de 0 a 55 V aplicada com potenciômetro virtual. Com 0 V externos, o pino do Arduino ficou em cerca de **1,43 V**. Esse valor tem margem pequena em relação ao limite LOW de 1,5 V e não deve ser generalizado para todas as portas e montagens. [ensaio – simulação]
-- Ensaio físico **da versão de produção V2**: variação de 0 a -50 V com potenciômetro de 10 kΩ, funcionamento esperado relatado pelo autor, sem registro fotográfico. Não vale como ensaio positivo do TCC nem como comprovação de ±50 V. [ensaio – produção]
+- Ensaio físico **da versão de produção V2**: variação de 0 a -50 V com potenciômetro de 10 kΩ, funcionamento esperado relatado pelo autor, sem registro fotográfico. Não vale como ensaio positivo do InfraBox V3 nem como comprovação de ±50 V. [ensaio – produção]
 - 70 V foi condição de análise de dimensionamento, não faixa de uso nem ensaio realizado. [cálculo]
 
 ### Uso
@@ -235,10 +234,10 @@ A versão de produção usa medição de -48 V com offset positivo: resistores d
 ## Display Nextion
 
 - Modelo: **NX8048P050-011C-Y**; **5 polegadas**; **800 × 480**; touch **capacitivo**; alimentação nominal **5 V**. [autor/datasheet]
-- Projeto HMI em uso: **DisplayTCC.HMI**. [autor]
+- Projeto HMI em uso: **Display_Nextion_TCC.HMI**, desenvolvido no Nextion Editor 1.68.1. [autor]
 - Comunicação: **Serial2** do Mega (TX2 = D16, RX2 = D17), ligação cruzada com RX/TX do display e GND comum. [firmware]
 - NexConfig.h: `nexSerial` = Serial2; `dbSerial` = Serial; DEBUG_SERIAL_ENABLE habilitado. [firmware]
-- Velocidade serial (baud) e versão do Nextion Editor: **não confirmadas**. [pendente]
+- Velocidade serial (baud): **não confirmada**. [pendente]
 - Corrente de alimentação do display: não documentada. A base anterior registrava que tensões abaixo de cerca de 4,5 V podem impedir a inicialização ou provocar reinicializações; a faixa de alimentação do datasheet não foi conferida nesta revisão. [pendente]
 - Funções locais: exibir leituras e alarmes e comandar os dois relés, com o painel energizado e o firmware em operação. Ver REDE_COMUNICACAO.md sobre funcionamento sem Internet.
 

@@ -1,6 +1,6 @@
-# Cabeamento – InfraBox TCC
+# Cabeamento – InfraBox V3
 
-Orientações de cabeamento da versão TCC. Usar junto com INSTALACAO.md e HARDWARE.md. Legenda de origem: ver CONHECIMENTO_INFRABOX.md.
+Orientações de cabeamento do InfraBox V3. Usar junto com INSTALACAO.md e HARDWARE.md. Legenda de origem: ver CONHECIMENTO_INFRABOX.md.
 
 Os tipos de cabo e seções indicados são as escolhas do projeto. Outros cabos exigem avaliação técnica considerando bornes, proteção e ligação real.
 
@@ -45,11 +45,12 @@ O cabo Ethernet não deve compartilhar a mesma tubulação com cabos de energia 
 - Cabo indicado pelo projeto: **PP 2 × 1 mm²**, cobre flexível. [autor]
 - Seção máxima indicada: **1,5 mm²**. Esse máximo está ligado à capacidade dos bornes do projeto; a ficha técnica do borne não consta da base. Não é afirmação de que cabos maiores sejam incapazes de conduzir a corrente. [autor/pendente]
 - Conferir a polaridade antes da energização.
-- **A versão TCC não deve ser ligada diretamente a -48 V.** Não há conversor -48 V/12 V instalado; essa adaptação é distinta e ainda não foi dimensionada.
+- **O InfraBox V3 não deve ser ligado diretamente a -48 V.** Não há conversor -48 V/12 V instalado; essa adaptação é distinta e ainda não foi dimensionada.
 
 ### Fusível DC
 
-- Fusível de vidro de **1 A** na via positiva, entre a bateria e o conversor XL4015. [autor]
+- Fusível de vidro de **1 A** na via positiva, instalado após o paralelo entre fonte e bateria, em série com o barramento de 12 V que alimenta o divisor de medição DC e o conversor DC/DC abaixador. [autor]
+- Se o fusível abrir, todo o painel é desligado: não há leitura nem alarme local de tensão baixa nessa condição. A aplicação web passa a indicar **OFFLINE** após 10 s sem atualização; esse estado indica apenas perda de comunicação com o painel, sem distinguir a causa (falta de alimentação, rede local ou Internet).
 - Não substituir por fusível de corrente maior.
 - Não usar a retirada ou inserção do fusível como manobra de energização sob carga. A ligação ou troca do fusível deve ser feita com o circuito desenergizado, seguindo a sequência de INSTALACAO.md.
 
@@ -125,9 +126,9 @@ Não ligar em paralelo um mesmo contato de alarme ao InfraBox e a entradas de ou
 
 ## Cabo do sensor de temperatura
 
-- Sonda DS18B20 com cabo padrão de **1 m** na versão TCC.
+- Sonda DS18B20 com cabo padrão de **1 m** no InfraBox V3.
 - O DS18B20 transmite a temperatura de forma digital; o comprimento do cabo não altera a leitura por resistência do fio. Cabos mais longos, emendas ou trocas podem comprometer a comunicação 1-Wire (capacitância, pull-up, alimentação, ruído) e devem ser avaliados com o desenvolvedor.
-- Não há comprimento máximo documentado para a versão TCC.
+- Não há comprimento máximo documentado para o InfraBox V3.
 
 ---
 
