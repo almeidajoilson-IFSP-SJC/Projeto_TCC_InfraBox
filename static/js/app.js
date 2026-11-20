@@ -835,9 +835,9 @@ function histDesenharGraficos(registros) {
         ["hist-grafico-temperatura", [{ label: "Temperatura °C", campo: "temperatura", cor: "#14aef3" }]],
         ["hist-grafico-dc", [{ label: "Tensão DC", campo: "bateria", cor: "#32d340" }]],
         ["hist-grafico-ac", [
-            { label: "R", campo: "fase1", cor: "#14aef3" },
-            { label: "S", campo: "fase2", cor: "#e65c90" },
-            { label: "T", campo: "fase3", cor: "#f0a33c" }
+            { label: "RS", campo: "fase1", cor: "#14aef3" },
+            { label: "RN", campo: "fase2", cor: "#e65c90" },
+            { label: "TN", campo: "fase3", cor: "#f0a33c" }
         ]]
     ];
     for (const [id, campos] of series) {
