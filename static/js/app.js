@@ -107,21 +107,21 @@ const graficoAC = new Chart(
 
             datasets: [
                 {
-                    label: "R",
+                    label: "RS",
                     data: historicoR,
                     borderWidth: 2,
                     pointRadius: 0,
                     tension: 0.25
                 },
                 {
-                    label: "S",
+                    label: "RN",
                     data: historicoS,
                     borderWidth: 2,
                     pointRadius: 0,
                     tension: 0.25
                 },
                 {
-                    label: "T",
+                    label: "SN",
                     data: historicoT,
                     borderWidth: 2,
                     pointRadius: 0,
@@ -837,7 +837,7 @@ function histDesenharGraficos(registros) {
         ["hist-grafico-ac", [
             { label: "RS", campo: "fase1", cor: "#14aef3" },
             { label: "RN", campo: "fase2", cor: "#e65c90" },
-            { label: "TN", campo: "fase3", cor: "#f0a33c" }
+            { label: "SN", campo: "fase3", cor: "#f0a33c" }
         ]]
     ];
     for (const [id, campos] of series) {
@@ -989,9 +989,9 @@ async function histExportarCSV() {
             ["Data/hora", r => histDataUTC(r.data_hora)],
             ["Temperatura (°C)", r => histNumero(r.temperatura)],
             ["Tensão DC (V)", r => histNumero(r.bateria)],
-            ["Fase R (V)", r => histNumero(r.fase1)],
-            ["Fase S (V)", r => histNumero(r.fase2)],
-            ["Fase T (V)", r => histNumero(r.fase3)],
+            ["Fase RS (V)", r => histNumero(r.fase1)],
+            ["Fase RN (V)", r => histNumero(r.fase2)],
+            ["Fase SN (V)", r => histNumero(r.fase3)],
             ["Porta", r => histEstado(r.porta)],
             ["Retificador", r => histEstado(r.retificador)],
             ["Ar-condicionado", r => histEstado(r.ar_condicionado)],
